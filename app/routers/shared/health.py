@@ -13,6 +13,6 @@ async def health_check(request: Request):
     """
     return ResponseBuilder.success(
         request=request,
-        data={"status": "healthy", "service": "SIT Portal Server", "version": "1.0.0"},
+        data={"status": "healthy", "service": "SIT Cert Server", "version": "1.0.0"},
         message="Service is running",
     )

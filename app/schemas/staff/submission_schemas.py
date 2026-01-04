@@ -66,6 +66,9 @@ class SubmissionRelatedDate(BaseModel):
     cert_name: str = Field(..., description="Certificate name")
     cert_description: str = Field(..., description="Certificate description")
 
+    # Academic year data
+    year_code: int = Field(..., description="Academic year code")
+
 
 class GetListOfSubmissions(BaseModel):
     """Response schema for list of all certificate submissions"""

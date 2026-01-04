@@ -177,6 +177,7 @@ class SubmissionService:
         requirement = schedule.program_requirement
         program = requirement.program
         cert_type = requirement.certificate_type
+        academic_year = schedule.academic_year
 
         return SubmissionRelatedDate(
             # Schedule data
@@ -197,6 +198,8 @@ class SubmissionService:
             cert_code=cert_type.cert_code,
             cert_name=cert_type.cert_name,
             cert_description=cert_type.description,
+            # Academic year data
+            year_code=academic_year.year_code,
         )
 
     async def _fetch_students_for_schedule(

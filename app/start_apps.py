@@ -164,7 +164,7 @@ def main():
     setup_signal_handlers()
 
     logger.info("=" * 60)
-    logger.info("Starting SIT Portal Services (FastAPI + Celery)")
+    logger.info("Starting SIT Cert Services (FastAPI + Celery)")
     logger.info("=" * 60)
     logger.info("Press Ctrl+C to stop all services")
 

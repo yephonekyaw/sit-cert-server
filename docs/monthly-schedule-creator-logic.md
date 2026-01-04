@@ -1,10 +1,10 @@
 # Automated Task System: Schedule Creator & Requirement Archiver
 
-This document explains the automated task system that manages program requirements and schedules for the SIT Portal application.
+This document explains the automated task system that manages program requirements and schedules for the SIT Cert application.
 
 ## Overview
 
-The SIT Portal includes two automated tasks that manage the lifecycle of program requirements:
+The SIT Cert includes two automated tasks that manage the lifecycle of program requirements:
 
 1. **Monthly Schedule Creator** (`app/tasks/monthly_schedule_creator.py`)
    - Runs on the 1st of every month at midnight Bangkok time

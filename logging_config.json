@@ -10,7 +10,7 @@
     "use_json_logs": true
   },
   "production": {
-    "log_dir": "/var/log/sit-portal",
+    "log_dir": "/var/log/sit-cert",
     "filename": "app.log", 
     "level": "warning",
     "rotation": "500 MB",

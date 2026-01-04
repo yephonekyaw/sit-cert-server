@@ -1,6 +1,6 @@
 # Notification System Flow
 
-Async notification system for SIT Portal using Celery tasks and template-based messaging.
+Async notification system for SIT Cert using Celery tasks and template-based messaging.
 
 ## Overview
 

@@ -201,7 +201,7 @@ class LineWebhookService:
                 "• Upcoming certificate submission deadlines\n"
                 "• Requirement reminders\n"
                 "• Important updates from the academic office\n"
-                "Thank you for using SIT Portal LINE Bot!"
+                "Thank you for using SIT Cert LINE Bot!"
             )
             self._reply_message(reply_token, success_message)
 

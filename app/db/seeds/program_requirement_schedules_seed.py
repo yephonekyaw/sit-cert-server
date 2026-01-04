@@ -68,7 +68,7 @@ def seed_program_requirement_schedules(db_session: Session):
 
     # Create schedule for 2023 academic year
     # Deadline: November 30, 2023 at 11:59 PM (simplified for MSSQL)
-    submission_deadline = from_bangkok_to_naive_utc(datetime(2025, 11, 30, 23, 59, 59))
+    submission_deadline = from_bangkok_to_naive_utc(datetime(2026, 11, 30, 23, 59, 59))
 
     # Grace period: 7 days after deadline
     grace_period_deadline = submission_deadline + timedelta(

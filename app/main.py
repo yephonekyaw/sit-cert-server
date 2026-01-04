@@ -10,8 +10,7 @@ from app.middlewares import (
     RequestIDMiddleware,
     DevSecurityMiddleware,
     ProdSecurityMiddleware,
-    # AuthMiddleware,
-    DependentAuthMiddleware,
+    AuthMiddleware,
 )
 
 # Initialize the logger
@@ -20,9 +19,9 @@ logger = get_logger()
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    logger.info("SIT Portal is starting up...")
+    logger.info("SIT Cert is starting up...")
     yield
-    logger.info("SIT Portal is shutting down...")
+    logger.info("SIT Cert is shutting down...")
 
 
 def create_application() -> FastAPI:
@@ -50,7 +49,7 @@ def create_application() -> FastAPI:
     #     else ProdSecurityMiddleware
     # )
     application.add_middleware(DevSecurityMiddleware)
-    application.add_middleware(DependentAuthMiddleware)
+    application.add_middleware(AuthMiddleware)
     application.add_middleware(RequestIDMiddleware)
 
     # Routers
