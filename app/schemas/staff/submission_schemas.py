@@ -27,9 +27,6 @@ class StudentSubmissionItem(BaseModel):
     submission_status: Optional[str] = Field(
         None, description="Current submission status"
     )
-    agent_confidence_score: Optional[float] = Field(
-        None, description="Agent confidence score"
-    )
     submission_timing: Optional[str] = Field(
         None, description="Submission timing status"
     )
@@ -94,10 +91,6 @@ class VerificationHistoryResponse(BaseModel):
     old_status: SubmissionStatus = Field(..., description="Previous submission status")
     new_status: SubmissionStatus = Field(..., description="New submission status")
     comments: Optional[str] = Field(None, description="Verification comments")
-    reasons: Optional[str] = Field(None, description="Verification reasons")
-    agent_analysis_result: Optional[Dict[str, Any]] = Field(
-        None, description="Agent analysis result data"
-    )
     created_at: datetime = Field(..., description="Creation timestamp")
     updated_at: Optional[datetime] = Field(None, description="Last update timestamp")
 
@@ -125,7 +118,4 @@ class ManualVerificationRequestBody(BaseModel):
     )
     comments: Optional[str] = Field(
         None, description="Verification comments", max_length=1000
-    )
-    reasons: Optional[str] = Field(
-        None, description="Verification reasons", max_length=1000
     )

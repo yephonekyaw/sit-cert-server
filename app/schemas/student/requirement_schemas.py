@@ -45,9 +45,6 @@ class StudentRequirementWithSubmissionResponse(BaseModel):
     submission_status: Optional[str] = Field(
         None, description="Current submission status"
     )
-    agent_confidence_score: Optional[float] = Field(
-        None, description="Agent confidence score"
-    )
     submission_timing: Optional[str] = Field(
         None, description="Submission timing status"
     )

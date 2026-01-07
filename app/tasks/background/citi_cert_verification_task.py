@@ -1,7 +1,7 @@
 import asyncio
 
 from app.celery import celery
-from app.services.citi_automation_service import get_citi_automation_service
+from app.services.citi_verification_service import get_citi_verification_service
 from app.utils.logging import get_logger
 
 logger = get_logger()
@@ -25,25 +25,24 @@ async def _async_verify_certificate(request_id: str, submission_id: str):
 
     try:
         # Use the refactored service for verification
-        citi_service = get_citi_automation_service()
+        citi_service = get_citi_verification_service()
 
-        result = await citi_service.verify_certificate_submission(
+        await citi_service.verify_certificate_submission(
             request_id=request_id,
             submission_id=submission_id,
         )
-
-        if not result["success"]:
-            logger.error(
-                f"Certificate verification task failed for {submission_id}: {result.get('error')}"
-            )
-        return result
+        logger.info(f"Certificate verification task completed for {submission_id}")
+        return {
+            "success": True,
+            "submission_id": submission_id,
+            "request_id": request_id,
+        }
     except Exception as e:
         logger.error(
             f"Certificate verification task exception for {submission_id}: {str(e)}"
         )
         return {
             "success": False,
-            "error": str(e),
             "submission_id": submission_id,
             "request_id": request_id,
         }

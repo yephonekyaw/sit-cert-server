@@ -54,7 +54,6 @@ class CertificateService:
                     cert_code=row.cert_code,
                     cert_name=row.cert_name,
                     description=row.description,
-                    verification_template=row.verification_template,
                     has_expiration=row.has_expiration,
                     is_active=row.is_active,
                     created_at=row.created_at,
@@ -85,18 +84,11 @@ class CertificateService:
                 raise ValueError("CERTIFICATE_CODE_EXISTS")
 
         try:
-            # Preserve required data section
-            updated_template = await self._preserve_required_data_section(
-                certificate_data.verification_template,
-                certificate.verification_template,
-            )
-
             # Update fields
             certificate.cert_code = certificate_data.cert_code
             certificate.cert_name = certificate_data.cert_name
             certificate.description = certificate_data.description
             certificate.has_expiration = certificate_data.has_expiration
-            certificate.verification_template = updated_template
 
             self.db.commit()
             logger.info(f"Updated certificate: {certificate.cert_code}")
@@ -106,7 +98,6 @@ class CertificateService:
                 cert_code=certificate.cert_code,
                 cert_name=certificate.cert_name,
                 description=certificate.description,
-                verification_template=certificate.verification_template,
                 has_expiration=certificate.has_expiration,
                 created_at=certificate.created_at,
                 updated_at=certificate.updated_at,
@@ -155,7 +146,6 @@ class CertificateService:
                     cert_code=certificate.cert_code,
                     cert_name=certificate.cert_name,
                     description=certificate.description,
-                    verification_template=certificate.verification_template,
                     has_expiration=certificate.has_expiration,
                     created_at=certificate.created_at,
                     updated_at=certificate.updated_at,
@@ -203,7 +193,6 @@ class CertificateService:
                 CertificateType.cert_code,
                 CertificateType.cert_name,
                 CertificateType.description,
-                CertificateType.verification_template,
                 CertificateType.has_expiration,
                 CertificateType.is_active,
                 CertificateType.created_at,
@@ -225,28 +214,6 @@ class CertificateService:
             .outerjoin(submissions, CertificateType.id == submissions.c.cert_type_id)
             .order_by(CertificateType.created_at.asc())
         )
-
-    async def _preserve_required_data_section(
-        self, new_template: str, current_template: str
-    ) -> str:
-        """Preserve REQUIRED_DATA_INPUT section from current template"""
-        marker = "**REQUIRED_DATA_INPUT:**"
-
-        if marker not in current_template:
-            return new_template
-
-        # Extract required data section
-        current_parts = current_template.split(marker, 1)
-        required_section = marker + current_parts[1]
-
-        # Remove required section from new template if present
-        if marker in new_template:
-            new_parts = new_template.split(marker, 1)
-            new_template = new_parts[0].rstrip()
-        else:
-            new_template = new_template.rstrip()
-
-        return new_template + "\n\n" + required_section
 
     @staticmethod
     def build_archive_message(archived_requirements_count: int) -> str:

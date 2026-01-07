@@ -118,9 +118,6 @@ class RequirementsService:
                 submission_status=(
                     submission.submission_status.value if submission else None
                 ),
-                agent_confidence_score=(
-                    submission.agent_confidence_score if submission else None
-                ),
                 submission_timing=(
                     submission.submission_timing.value if submission else None
                 ),
@@ -258,7 +255,6 @@ class RequirementsService:
             )
 
             existing_submission.submission_status = SubmissionStatus.PENDING
-            existing_submission.agent_confidence_score = 0.0
             existing_submission.submitted_at = naive_utc_now()
 
             current_time = naive_utc_now()
@@ -291,7 +287,6 @@ class RequirementsService:
                 filename=submission_data.file.filename or "unknown",
                 file_size=upload_result["size"],
                 mime_type=upload_result["content_type"] or "application/octet-stream",
-                agent_confidence_score=0.0,
                 submission_timing=timing,
             )
 
@@ -337,7 +332,6 @@ class RequirementsService:
             file_size=submission.file_size,
             mime_type=submission.mime_type,
             submission_status=submission.submission_status.value,
-            agent_confidence_score=submission.agent_confidence_score,
             submission_timing=submission.submission_timing.value,
             submitted_at=submission.submitted_at.isoformat(),
             expired_at=(

@@ -27,12 +27,6 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = "<your-database-url>"
 
-    # LangChain & LangSmith
-    LANGSMITH_TRACING: str = "true"
-    LANGSMITH_ENDPOINT: str = "<your-langsith-endpoint>"
-    LANGSMITH_API_KEY: str = "<your-langsith-api-key>"
-    LANGSMITH_PROJECT: str = "<your-langsith-project>"
-
     # Authentication & Security
     JWT_SECRET_KEY: str = "<your-jwt-secret-key>"
     JWT_ALGORITHM: str = "HS256"

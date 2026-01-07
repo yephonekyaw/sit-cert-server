@@ -210,7 +210,6 @@ class CertificateType(Base, AuditMixin):
     cert_code: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
     cert_name: Mapped[str] = mapped_column(String(200), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False)
-    verification_template: Mapped[str] = mapped_column(Text, nullable=False)
     has_expiration: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
@@ -655,7 +654,6 @@ class CertificateSubmission(Base, AuditMixin):
     submission_status: Mapped[SubmissionStatus] = mapped_column(
         Enum(SubmissionStatus), default=SubmissionStatus.PENDING, nullable=False
     )
-    agent_confidence_score: Mapped[Optional[float]] = mapped_column(Float)
     submission_timing: Mapped[SubmissionTiming] = mapped_column(
         Enum(SubmissionTiming), default=SubmissionTiming.ON_TIME, nullable=False
     )
@@ -685,10 +683,6 @@ class CertificateSubmission(Base, AuditMixin):
             name="uq_cert_sub_student_cert_sched",
         ),
         CheckConstraint("file_size > 0", name="ck_cert_sub_file_size_positive"),
-        CheckConstraint(
-            "agent_confidence_score IS NULL OR (agent_confidence_score >= 0 AND agent_confidence_score <= 1)",
-            name="ck_cert_sub_conf_score_range",
-        ),
         CheckConstraint(
             "expired_at IS NULL OR expired_at > submitted_at",
             name="ck_cert_sub_expired_after_submitted",
@@ -727,9 +721,6 @@ class VerificationHistory(Base, AuditMixin):
         Enum(SubmissionStatus), nullable=False
     )
     comments: Mapped[Optional[str]] = mapped_column(Text)
-    reasons: Mapped[Optional[str]] = mapped_column(Text)
-    # JSON stored as Text - you'll need to serialize/deserialize in your application
-    agent_analysis_result: Mapped[Optional[str]] = mapped_column(Text)
 
     # Relationships
     submission: Mapped["CertificateSubmission"] = relationship(

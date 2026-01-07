@@ -141,8 +141,6 @@ class SubmissionService:
                 old_status=old_status,
                 new_status=new_status,
                 comments=verification_data.comments,
-                reasons=verification_data.reasons,
-                agent_analysis_result=None,
             )
 
             # Save verification history and update submission status in a single transaction
@@ -256,7 +254,6 @@ class SubmissionService:
             file_size=None,
             mime_type=None,
             submission_status=None,
-            agent_confidence_score=None,
             submission_timing=None,
             submitted_at=None,
             expired_at=None,
@@ -270,7 +267,6 @@ class SubmissionService:
             item.file_size = submission.file_size
             item.mime_type = submission.mime_type
             item.submission_status = submission.submission_status.value
-            item.agent_confidence_score = submission.agent_confidence_score
             item.submission_timing = (
                 submission.submission_timing.value
                 if submission.submission_timing
@@ -332,8 +328,6 @@ class SubmissionService:
             old_status=record.old_status,
             new_status=record.new_status,
             comments=record.comments,
-            reasons=record.reasons,
-            agent_analysis_result=None,  # agent_analysis_result=json.loads(record.agent_analysis_result if record.agent_analysis_result else "{}"),
             created_at=record.created_at,
             updated_at=record.updated_at,
         )

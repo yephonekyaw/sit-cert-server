@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session
 from sqlalchemy import delete
 
 from app.db.models import CertificateType
-from app.templates.citi_program_template import citi_program_verification_template
 from app.utils.logging import get_logger
 
 logger = get_logger()
@@ -22,7 +21,6 @@ def seed_certificate_types(db_session: Session):
             cert_code="citi_program_certificate",
             cert_name="CITI Program Certificate",
             description="Certificate for CITI Program courses.",
-            verification_template=citi_program_verification_template,
             has_expiration=False,
             is_active=True,
         ),

@@ -13,7 +13,6 @@ class GetCertificatesItem(BaseModel):
     cert_code: str = Field(..., description="Certificate type code")
     cert_name: str = Field(..., description="Certificate type name")
     description: str = Field(..., description="Certificate type description")
-    verification_template: str = Field(..., description="Verification template")
     has_expiration: bool = Field(..., description="Whether certificate has expiration")
     is_active: bool = Field(..., description="Whether certificate type is active")
     created_at: datetime = Field(..., description="Creation timestamp")
@@ -43,9 +42,6 @@ class UpdateCertificateRequest(BaseModel):
     )
     description: str = Field(
         ..., min_length=1, description="Certificate type description"
-    )
-    verification_template: str = Field(
-        ..., min_length=1, description="Verification template"
     )
     has_expiration: bool = Field(..., description="Whether certificate has expiration")
 
