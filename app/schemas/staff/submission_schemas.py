@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 from uuid import UUID
 from pydantic import Field
 from app.db.models import SubmissionStatus, VerificationType

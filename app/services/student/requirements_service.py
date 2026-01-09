@@ -224,10 +224,6 @@ class RequirementsService:
 
         SUPPORTED_MIME_TYPES = {
             "application/pdf",
-            "image/jpeg",
-            "image/jpg",
-            "image/png",
-            "image/webp",
         }
 
         if submission_data.file.content_type not in SUPPORTED_MIME_TYPES:
