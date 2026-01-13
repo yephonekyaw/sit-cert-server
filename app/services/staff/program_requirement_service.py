@@ -13,6 +13,7 @@ from app.db.models import (
     CertificateType,
     ProgramRequirementSchedule,
     AcademicYear,
+    ProgReqRecurrenceType,
 )
 from app.db.session import get_sync_session
 from app.schemas.staff.program_requirement_schemas import (
@@ -192,6 +193,11 @@ class ProgramRequirementService:
             raise ValueError(
                 f"EFFECTIVE_UNTIL_YEAR_TOO_EARLY: effective_until_year ({requirement_data.effective_until_year}) cannot be earlier than the latest academic year with created schedules ({latest_schedule_academic_year})"
             )
+        
+        if (requirement.recurrence_type == ProgReqRecurrenceType.ANNUAL and requirement_data.recurrence_type == ProgReqRecurrenceType.ONCE):
+            # Ensure that effective_until_year is set to the latest schedule academic year for ONCE type
+            if latest_schedule_academic_year:
+                requirement_data.effective_until_year = latest_schedule_academic_year
 
         try:
             # Create new deadline date (using year 2000 as base)
