@@ -126,7 +126,6 @@ def seed_users_students(db_session: Session):
             last_name=last_name,
             user_type=UserType.STUDENT,
             is_active=True,
-            access_token_version=0,
         )
         users.append(user)
 

@@ -5,7 +5,6 @@ from sqlalchemy import (
     String,
     Boolean,
     Integer,
-    Float,
     Text,
     ForeignKey,
     Enum,
@@ -121,10 +120,6 @@ class User(Base, AuditMixin):
     last_name: Mapped[str] = mapped_column(String(100), nullable=False)
     user_type: Mapped[UserType] = mapped_column(Enum(UserType), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-    refresh_token: Mapped[Optional[str]] = mapped_column(String(500))
-    access_token_version: Mapped[int] = mapped_column(
-        Integer, default=0, nullable=False
-    )
     last_login: Mapped[Optional[datetime]] = mapped_column(DATETIME2)
 
     # Relationships
@@ -144,26 +139,6 @@ class User(Base, AuditMixin):
         Index("idx_users_type_active", "user_type", "is_active"),
         Index("idx_users_last_login", "last_login"),
     )
-
-
-class Role(Base, AuditMixin):
-    __tablename__ = "roles"
-
-    id: Mapped[str] = mapped_column(
-        StringUUID,
-        primary_key=True,
-        server_default=func.newid(),
-    )
-    name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
-    description: Mapped[str] = mapped_column(Text, nullable=False)
-
-    # Relationships
-    permissions: Mapped[List["Permission"]] = relationship(
-        back_populates="role", cascade="all, delete-orphan"
-    )
-
-    # Constraints
-    __table_args__ = (Index("idx_roles_name", "name"),)
 
 
 class AcademicYear(Base, AuditMixin):
@@ -316,9 +291,6 @@ class Program(Base, AuditMixin):
     dashboard_stats: Mapped[List["DashboardStats"]] = relationship(
         back_populates="program"
     )
-    permissions: Mapped[List["Permission"]] = relationship(
-        back_populates="program", cascade="all, delete-orphan"
-    )
 
     # Constraints
     __table_args__ = (
@@ -468,106 +440,12 @@ class Staff(Base, AuditMixin):
         unique=True,  # One-to-one relationship
         nullable=False,
     )
-    employee_id: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
-    department: Mapped[str] = mapped_column(String(100), nullable=False)
 
     # Relationships
     user: Mapped["User"] = relationship(back_populates="staff")
-    staff_permissions: Mapped[List["StaffPermission"]] = relationship(
-        back_populates="staff",
-        foreign_keys="StaffPermission.staff_id",
-        cascade="all, delete-orphan",
-    )
-    assigned_permissions: Mapped[List["StaffPermission"]] = relationship(
-        back_populates="assigned_by_staff", foreign_keys="StaffPermission.assigned_by"
-    )
 
     # Constraints
-    __table_args__ = (
-        Index("idx_staff_user_id", "user_id"),
-        Index("idx_staff_employee_id", "employee_id"),
-        Index("idx_staff_department", "department"),
-    )
-
-
-class Permission(Base, AuditMixin):
-    __tablename__ = "permissions"
-
-    id: Mapped[str] = mapped_column(
-        StringUUID,
-        primary_key=True,
-        server_default=func.newid(),
-    )
-    program_id: Mapped[str] = mapped_column(
-        StringUUID,
-        ForeignKey("programs.id", ondelete="NO ACTION"),
-        nullable=False,
-    )
-    role_id: Mapped[str] = mapped_column(
-        StringUUID, ForeignKey("roles.id", ondelete="CASCADE"), nullable=False
-    )
-
-    # Relationships
-    program: Mapped["Program"] = relationship(back_populates="permissions")
-    role: Mapped["Role"] = relationship(back_populates="permissions")
-    staff_permissions: Mapped[List["StaffPermission"]] = relationship(
-        back_populates="permission", cascade="all, delete-orphan"
-    )
-
-    # Constraints
-    __table_args__ = (
-        UniqueConstraint("program_id", "role_id", name="uq_perm_program_role"),
-        Index("idx_permissions_program_id", "program_id"),
-        Index("idx_permissions_role_id", "role_id"),
-    )
-
-
-class StaffPermission(Base, AuditMixin):
-    __tablename__ = "staff_permissions"
-
-    id: Mapped[str] = mapped_column(
-        StringUUID,
-        primary_key=True,
-        server_default=func.newid(),
-    )
-    staff_id: Mapped[str] = mapped_column(
-        StringUUID, ForeignKey("staff.id", ondelete="NO ACTION"), nullable=False
-    )
-    permission_id: Mapped[str] = mapped_column(
-        StringUUID,
-        ForeignKey("permissions.id", ondelete="NO ACTION"),
-        nullable=False,
-    )
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-    assigned_by: Mapped[Optional[str]] = mapped_column(
-        StringUUID, ForeignKey("staff.id", ondelete="SET NULL")
-    )
-    assigned_at: Mapped[datetime] = mapped_column(
-        DATETIME2, server_default=func.getutcdate(), nullable=False
-    )
-    expires_at: Mapped[Optional[datetime]] = mapped_column(DATETIME2)
-
-    # Relationships
-    staff: Mapped["Staff"] = relationship(
-        back_populates="staff_permissions", foreign_keys=[staff_id]
-    )
-    permission: Mapped["Permission"] = relationship(back_populates="staff_permissions")
-    assigned_by_staff: Mapped[Optional["Staff"]] = relationship(
-        back_populates="assigned_permissions", foreign_keys=[assigned_by]
-    )
-
-    # Constraints
-    __table_args__ = (
-        UniqueConstraint("staff_id", "permission_id", name="uq_staff_perm_staff_perm"),
-        CheckConstraint(
-            "expires_at IS NULL OR expires_at > assigned_at",
-            name="ck_staff_perm_expires_after_assigned",
-        ),
-        Index("idx_staff_perm_staff_id", "staff_id"),
-        Index("idx_staff_perm_permission_id", "permission_id"),
-        Index("idx_staff_perm_is_active", "is_active"),
-        Index("idx_staff_perm_expires_at", "expires_at"),
-    )
+    __table_args__ = (Index("idx_staff_user_id", "user_id"),)
 
 
 class Student(Base, AuditMixin):

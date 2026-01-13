@@ -7,6 +7,7 @@ from .program_requirements import program_requirements_router
 from .program_requirement_schedules import program_requirement_schedules_router
 from .academic_years import academic_years_router
 from .dashboard_stats import dashboard_stats_router
+from .members import members_router
 
 staff_router = APIRouter()
 
@@ -39,4 +40,9 @@ staff_router.include_router(
     dashboard_stats_router,
     prefix="/dashboard-stats",
     tags=["Staff - Dashboard Statistics Management"],
+)
+staff_router.include_router(
+    members_router,
+    prefix="/members",
+    tags=["Staff - Member Management"],
 )

@@ -28,7 +28,7 @@ from app.utils.errors import BusinessLogicError
 from app.tasks import verify_certificate_task
 from app.middlewares.auth_middleware import require_student, AuthState
 from app.services.notifications.utils import (
-    get_staff_user_ids_by_program_and_role,
+    get_all_staff_user_ids,
     create_notification_sync,
 )
 from app.utils.string_utils import to_str
@@ -92,10 +92,8 @@ async def submit_student_certificate(
         )
 
         # Create notifications for staff
-        staff_user_ids = await get_staff_user_ids_by_program_and_role(
+        staff_user_ids = await get_all_staff_user_ids(
             db_session,
-            program_code=submission_response.program_code,
-            role_name="admin",
         )
 
         create_notification_sync(

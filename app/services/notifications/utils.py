@@ -11,9 +11,6 @@ from app.db.models import (
     ProgramRequirementSchedule,
     CertificateSubmission,
     Program,
-    Permission,
-    Role,
-    StaffPermission,
     SubmissionStatus,
 )
 from app.utils.logging import get_logger
@@ -102,59 +99,25 @@ async def get_student_user_ids_for_requirement_schedule(
         return []
 
 
-async def get_staff_user_ids_by_program_and_role(
-    db: Session, program_code: str, role_name: Optional[str] = None
-) -> List[str]:
+async def get_all_staff_user_ids(db: Session) -> List[str]:
     """
-    Get user IDs of staff members responsible for a particular program
-    and who have certain permissions/roles.
+    Get user IDs of all staff members.
 
     Args:
         db: Database session
-        program_code: Code of the program
-        role_name: Optional role name to filter by
 
     Returns:
         List of user IDs of staff members
     """
     try:
-        # Build the query step by step
-        query = (
-            select(Staff)
-            .join(Staff.user)
-            .join(StaffPermission, Staff.id == StaffPermission.staff_id)
-            .join(Permission, StaffPermission.permission_id == Permission.id)
-            .join(Program, Permission.program_id == Program.id)
-            .where(
-                and_(
-                    Program.program_code == program_code,
-                    StaffPermission.is_active == True,
-                )
-            )
-            .options(selectinload(Staff.user))
-        )
-
-        # Add role filter if provided
-        if role_name:
-            query = query.join(Role, Permission.role_id == Role.id).where(
-                Role.name == role_name
-            )
-
-        result = db.execute(query)
-        staff_members = result.scalars().unique().all()
-
-        staff_user_ids = [staff.user_id for staff in staff_members]
-
-        logger.info(
-            f"Found {len(staff_user_ids)} staff members for program {program_code}"
-            + (f" with role {role_name}" if role_name else "")
-        )
+        rows = db.execute(select(Staff)).scalars().unique().all()
+        staff_user_ids = [staff.user_id for staff in rows]
 
         return staff_user_ids
 
     except Exception as e:
         logger.error(
-            f"Error getting staff user IDs for program {program_code}, role {role_name}: {str(e)}",
+            f"Error getting staff user IDs: {str(e)}",
             exc_info=True,
         )
         return []

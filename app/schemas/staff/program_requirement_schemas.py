@@ -1,7 +1,6 @@
 from datetime import datetime, date
 from typing import Optional
 from pydantic import Field
-from uuid import UUID
 
 from app.db.models import ProgReqRecurrenceType
 from app.schemas.camel_base_model import CamelCaseBaseModel as BaseModel
@@ -26,8 +25,8 @@ MONTH_MAX_DAYS = {
 class CreateProgramRequirementRequest(BaseModel):
     """Request schema for creating a new program requirement"""
 
-    program_id: str | UUID = Field(..., description="Program ID for the requirement")
-    cert_type_id: str | UUID = Field(..., description="Certificate type ID")
+    program_id: str = Field(..., description="Program ID for the requirement")
+    cert_type_id: str = Field(..., description="Certificate type ID")
     name: str = Field(..., min_length=1, max_length=200, description="Requirement name")
     target_year: int = Field(..., ge=1, le=10, description="Target year (1-10)")
     deadline_day: int = Field(..., ge=1, le=31, description="Deadline day (1-31)")
@@ -96,15 +95,15 @@ class CreateProgramRequirementRequest(BaseModel):
 class UpdateProgramRequirementRequest(CreateProgramRequirementRequest):
     """Request schema for updating an existing program requirement"""
 
-    id: str | UUID = Field(..., description="Requirement ID")
+    id: str = Field(..., description="Requirement ID")
 
 
 class ProgramRequirementResponse(BaseModel):
     """Response schema for program requirement data"""
 
-    id: str | UUID = Field(..., description="Requirement ID")
-    program_id: str | UUID = Field(..., description="Program ID")
-    cert_type_id: str | UUID = Field(..., description="Certificate type ID")
+    id: str = Field(..., description="Requirement ID")
+    program_id: str = Field(..., description="Program ID")
+    cert_type_id: str = Field(..., description="Certificate type ID")
     name: str = Field(..., description="Requirement name")
     target_year: int = Field(..., description="Target year")
     deadline_date: date = Field(..., description="Deadline date")
@@ -131,7 +130,7 @@ class GetProgramRequirementsItem(BaseModel):
     """Schema for retrieving a program requirement item"""
 
     # Program requirement fields
-    id: str | UUID = Field(..., description="Requirement ID")
+    id: str = Field(..., description="Requirement ID")
     name: str = Field(..., description="Requirement name")
     target_year: int = Field(..., description="Target year")
     deadline_date: date = Field(..., description="Deadline date")
@@ -153,12 +152,12 @@ class GetProgramRequirementsItem(BaseModel):
     updated_at: Optional[datetime] = Field(None, description="Last update timestamp")
 
     # Program information
-    program_id: str | UUID = Field(..., description="Program ID")
+    program_id: str = Field(..., description="Program ID")
     program_code: str = Field(..., description="Program code")
     program_name: str = Field(..., description="Program name")
 
     # Certificate type information
-    cert_type_id: str | UUID = Field(..., description="Certificate type ID")
+    cert_type_id: str = Field(..., description="Certificate type ID")
     cert_code: str = Field(..., description="Certificate type code")
     cert_name: str = Field(..., description="Certificate type name")
 

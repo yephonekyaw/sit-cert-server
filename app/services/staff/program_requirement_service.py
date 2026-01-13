@@ -159,7 +159,7 @@ class ProgramRequirementService:
             raise ValueError("PROGRAM_REQUIREMENT_NOT_FOUND")
 
         # Validate that the program still exists and is active
-        program = await self._validate_program_exists_and_active(requirement.program_id)  # type: ignore
+        program = await self._validate_program_exists_and_active(requirement.program_id)
 
         # Validate target_year against program duration
         if requirement_data.target_year > program.duration_years:

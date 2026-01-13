@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import Optional
 from pydantic import Field, field_validator
-from uuid import UUID
 
 from app.schemas.camel_base_model import CamelCaseBaseModel as BaseModel
 from app.utils.datetime_utils import utc_now, to_utc
@@ -10,12 +9,10 @@ from app.utils.datetime_utils import utc_now, to_utc
 class CreateProgramRequirementScheduleRequest(BaseModel):
     """Request schema for creating a new program requirement schedule"""
 
-    program_requirement_id: str | UUID = Field(
+    program_requirement_id: str = Field(
         ..., description="Program requirement ID for the schedule"
     )
-    academic_year_id: str | UUID = Field(
-        ..., description="Academic year ID for the schedule"
-    )
+    academic_year_id: str = Field(..., description="Academic year ID for the schedule")
     submission_deadline: datetime = Field(
         ..., description="Submission deadline for this schedule"
     )
@@ -57,17 +54,15 @@ class CreateProgramRequirementScheduleRequest(BaseModel):
 class UpdateProgramRequirementScheduleRequest(CreateProgramRequirementScheduleRequest):
     """Request schema for updating an existing program requirement schedule"""
 
-    id: str | UUID = Field(..., description="Schedule ID to update")
+    id: str = Field(..., description="Schedule ID to update")
 
 
 class ProgramRequirementScheduleResponse(BaseModel):
     """Response schema for program requirement schedule data"""
 
-    id: str | UUID = Field(..., description="Schedule ID")
-    program_requirement_id: str | UUID = Field(
-        ..., description="Program requirement ID"
-    )
-    academic_year_id: str | UUID = Field(..., description="Academic year ID")
+    id: str = Field(..., description="Schedule ID")
+    program_requirement_id: str = Field(..., description="Program requirement ID")
+    academic_year_id: str = Field(..., description="Academic year ID")
     submission_deadline: datetime = Field(..., description="Submission deadline")
     grace_period_deadline: datetime = Field(..., description="Grace period deadline")
     start_notify_at: datetime = Field(
@@ -84,10 +79,8 @@ class GetProgramRequirementSchedulesItem(BaseModel):
     """Comprehensive response schema for schedule list with all related data"""
 
     # Schedule core fields
-    id: str | UUID = Field(..., description="Schedule ID")
-    program_requirement_id: str | UUID = Field(
-        ..., description="Program requirement ID"
-    )
+    id: str = Field(..., description="Schedule ID")
+    program_requirement_id: str = Field(..., description="Program requirement ID")
     submission_deadline: datetime = Field(..., description="Submission deadline")
     grace_period_deadline: datetime = Field(..., description="Grace period deadline")
     start_notify_at: datetime = Field(
@@ -100,17 +93,17 @@ class GetProgramRequirementSchedulesItem(BaseModel):
     updated_at: datetime = Field(..., description="Last update timestamp")
 
     # Program information
-    program_id: str | UUID = Field(..., description="Program ID")
+    program_id: str = Field(..., description="Program ID")
     program_code: str = Field(..., description="Program code")
     program_name: str = Field(..., description="Program name")
 
     # Certificate type information
-    cert_id: str | UUID = Field(..., description="Certificate type ID")
+    cert_id: str = Field(..., description="Certificate type ID")
     cert_code: str = Field(..., description="Certificate type code")
     cert_name: str = Field(..., description="Certificate type name")
 
     # Academic year information
-    academic_year_id: str | UUID = Field(..., description="Academic year ID")
+    academic_year_id: str = Field(..., description="Academic year ID")
     academic_year: int = Field(..., description="Academic year code")
 
     # Program requirement information

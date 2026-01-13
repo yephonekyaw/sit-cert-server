@@ -26,7 +26,7 @@ def seed_programs(db_session: Session):
         ),
         Program(
             id=str(uuid.uuid4()),
-            program_code="Bart.DSI",
+            program_code="Bc.DSI",
             program_name="Bachelor of Arts Programme in Digital Service Innovation",
             description="An innovative Bachelor's program that combines technology, design thinking, and business strategy to create digital solutions for real-world problems.",
             duration_years=4,

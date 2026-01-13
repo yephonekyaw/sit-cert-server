@@ -225,3 +225,5 @@ CLAUDE.md
 # Temp files
 tmp*/
 temp*/
+
+*.http

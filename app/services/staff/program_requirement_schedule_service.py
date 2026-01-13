@@ -169,7 +169,7 @@ class ProgramRequirementScheduleService:
 
             # Validate program requirement is active
             program_requirement = await self.validate_program_requirement_active(
-                schedule_data.program_requirement_id
+                (schedule_data.program_requirement_id)
             )
 
             # Validate academic year exists and deadline is within academic year considering program duration

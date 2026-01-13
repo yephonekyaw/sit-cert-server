@@ -27,18 +27,15 @@ def seed_users_staff(db_session: Session):
         last_name="San",
         user_type=UserType.STAFF,
         is_active=True,
-        access_token_version=0,
     )
 
     # Create staff
     staff = Staff(
         id=str(uuid.uuid4()),
         user_id=user_id,
-        employee_id="10000000000",
-        department="Computer Science",
     )
 
     db_session.add(user)
     db_session.add(staff)
     db_session.commit()
-    logger.info("Seeded 1 staff member: CSCMS (Computer Science)")
+    logger.info("Seeded 1 staff member: CSCMS")
