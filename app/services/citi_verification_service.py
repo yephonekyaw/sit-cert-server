@@ -125,9 +125,9 @@ class CitiCertVerificationService:
                 logger.info(f"Verification rejected for submission ID {submission_id}")
         except Exception as e:
             self.verdict = Verdict(
-                decision=VerificationDecision.MANUAL_REVIEW,
+                decision=VerificationDecision.REJECT,
                 comments=[
-                    f"Unexpected error occurred during the automated verification process, thus requiring manual review."
+                    f"Unexpected error occurred during the automated verification process, thus rejected. You can resubmit or contact support."
                 ],
             )
             logger.error(
@@ -236,6 +236,7 @@ class CitiCertVerificationService:
 
             return structured_output
         except Exception as e:
+            logger.error(str(e))
             raise e
 
     async def _verify_with_cross_check_text(
@@ -280,9 +281,6 @@ class CitiCertVerificationService:
             fields = [
                 f for f in structured_output.model_dump().keys() if f != "generated_on"
             ]
-
-            print(structured_output.model_dump().items())
-            print(cross_check_output.model_dump().items())
 
             return [
                 " ".join(field.split("_")).title()

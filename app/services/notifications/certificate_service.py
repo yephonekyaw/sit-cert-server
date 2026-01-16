@@ -70,7 +70,7 @@ class CertificateSubmissionNotificationService(BaseNotificationService):
                     if submission.requirement_schedule
                     else "N/A"
                 ),
-                "rejection_reason": "N/A",
+                "rejection_comment": "N/A",
             }
 
             # Merge any additional metadata

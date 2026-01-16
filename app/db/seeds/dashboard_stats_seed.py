@@ -36,18 +36,18 @@ def seed_dashboard_stats(db_session: Session):
         logger.error("Could not find program or certificate type for the schedule.")
         return
 
-    total_students = 150
-    submitted_count = 45
-    approved_count = 30
-    rejected_count = 8
-    pending_count = 5
-    manual_review_count = 2
+    total_students = 49
+    submitted_count = 0
+    approved_count = 0
+    rejected_count = 0
+    pending_count = 0
+    manual_review_count = 0
     not_submitted_count = total_students - submitted_count
-    on_time_submissions = 40
-    late_submissions = 5
+    on_time_submissions = 0
+    late_submissions = 0
     overdue_count = 0
-    manual_verification_count = 10
-    agent_verification_count = 35
+    manual_verification_count = 0
+    agent_verification_count = 0
 
     dashboard_stats = DashboardStats(
         id=str(uuid.uuid4()),

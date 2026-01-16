@@ -170,50 +170,6 @@ async def get_user_id_from_student_identifier(
         return None
 
 
-async def get_user_id_from_staff_identifier(
-    db: Session, identifier: str
-) -> Optional[str]:
-    """
-    Get user_id from staff identifier (staff ID or employee_id).
-
-    Args:
-        db: Database session
-        identifier: Staff ID (UUID string) or employee_id
-
-    Returns:
-        User ID if found, None otherwise
-    """
-    try:
-        # Try to parse as UUID first (staff.id)
-        try:
-            stmt = select(Staff.user_id).where(Staff.id == identifier)
-            result = db.execute(stmt)
-            user_id = result.scalar_one_or_none()
-            if user_id:
-                return user_id
-        except ValueError:
-            pass
-
-        # Try as employee_id
-        stmt = select(Staff.user_id).where(Staff.employee_id == identifier)
-        result = db.execute(stmt)
-        user_id = result.scalar_one_or_none()
-
-        if user_id:
-            logger.info(f"Found user_id {user_id} for staff identifier {identifier}")
-        else:
-            logger.warning(f"No staff found for identifier {identifier}")
-
-        return user_id
-
-    except Exception as e:
-        logger.error(
-            f"Error getting user_id for staff identifier {identifier}: {str(e)}",
-            exc_info=True,
-        )
-        return None
-
-
 def create_notification_sync(
     request_id: str,
     notification_code: str,
