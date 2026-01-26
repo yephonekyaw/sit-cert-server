@@ -43,12 +43,7 @@ async def _async_process_notification(request_id: str, notification_id: str):
 
             if not notification:
                 logger.error(f"Notification not found: {notification_id}")
-                return {
-                    "success": False,
-                    "error": "Notification not found",
-                    "notification_id": notification_id,
-                    "request_id": request_id,
-                }
+                return {"status": "error", "message": "Notification not found"}
 
             # Check if notification has expired
             if notification.expires_at and notification.expires_at <= naive_utc_now():
@@ -59,12 +54,7 @@ async def _async_process_notification(request_id: str, notification_id: str):
                         recipient.status = NotificationStatus.EXPIRED
 
                 db_session.commit()
-                return {
-                    "success": True,
-                    "status": "expired",
-                    "notification_id": notification_id,
-                    "request_id": request_id,
-                }
+                return {"status": "success", "message": "Marked expired"}
 
             # Process each recipient
             tasks_created = 0
@@ -94,10 +84,8 @@ async def _async_process_notification(request_id: str, notification_id: str):
             db_session.commit()
 
             return {
-                "success": True,
-                "tasks_created": tasks_created,
-                "notification_id": notification_id,
-                "request_id": request_id,
+                "status": "success",
+                "message": f"Created {tasks_created} number of tasks",
             }
 
         except Exception as e:
@@ -106,8 +94,6 @@ async def _async_process_notification(request_id: str, notification_id: str):
             )
 
             return {
-                "success": False,
-                "error": str(e),
-                "notification_id": notification_id,
-                "request_id": request_id,
+                "status": "error",
+                "message": str(e),
             }

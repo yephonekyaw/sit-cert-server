@@ -66,9 +66,8 @@ async def _async_send_line_notification(
                     f"Notification or recipient not found: {notification_id}, {recipient_id}"
                 )
                 return {
-                    "success": False,
-                    "error": "Notification or recipient not found",
-                    "request_id": request_id,
+                    "status": "error",
+                    "message": "Notification or recipient not found",
                 }
 
             notification, recipient = result_row
@@ -83,9 +82,8 @@ async def _async_send_line_notification(
                     f"No service found for notification code: {notification.notification_type.code}"
                 )
                 return {
-                    "success": True,
+                    "status": "success",
                     "message": f"No service found for notification code: {notification.notification_type.code}",
-                    "request_id": request_id,
                 }
 
             try:
@@ -103,11 +101,7 @@ async def _async_send_line_notification(
                 logger.warning(
                     f"Failed to get notification message content for {notification_id}"
                 )
-                return {
-                    "success": True,
-                    "message": "Failed to get message content",
-                    "request_id": request_id,
-                }
+                return {"status": "success"}
 
             # Validate recipient can receive LINE notifications
             if not _validate_line_recipient(db_session, recipient_id):
@@ -115,9 +109,8 @@ async def _async_send_line_notification(
                     f"Recipient not configured for LINE notifications: {recipient_id}"
                 )
                 return {
-                    "success": True,
+                    "status": "success",
                     "message": "Recipient not configured for LINE notifications",
-                    "request_id": request_id,
                 }
 
             # Get recipient's LINE user ID
@@ -125,9 +118,8 @@ async def _async_send_line_notification(
             if not line_user_id:
                 logger.warning(f"Recipient LINE user ID not found: {recipient_id}")
                 return {
-                    "success": True,
+                    "status": "success",
                     "message": "Recipient LINE user ID not found",
-                    "request_id": request_id,
                 }
 
             # Send LINE notification using LineWebhookService
@@ -141,18 +133,14 @@ async def _async_send_line_notification(
 
             if line_success:
                 return {
-                    "success": True,
+                    "status": "success",
                     "channel": "line_app",
-                    "notification_id": notification_id,
-                    "recipient_id": recipient_id,
-                    "request_id": request_id,
                 }
             else:
                 logger.warning(f"Failed to send LINE notification to {recipient_id}")
                 return {
-                    "success": True,
+                    "status": "success",
                     "message": "Failed to send LINE notification",
-                    "request_id": request_id,
                 }
 
         except Exception as e:
@@ -161,11 +149,8 @@ async def _async_send_line_notification(
             )
 
             return {
-                "success": False,
-                "error": str(e),
-                "notification_id": notification_id,
-                "recipient_id": recipient_id,
-                "request_id": request_id,
+                "status": "error",
+                "message": str(e),
             }
 
 
@@ -204,8 +189,8 @@ def _get_line_user_id(db_session: Session, recipient_id: str) -> Optional[str]:
         line_application_id = result.scalar_one_or_none()
         return line_application_id
 
-    except Exception:
-        return None
+    except Exception as e:
+        raise e
 
 
 async def _send_line_notification(
@@ -242,4 +227,4 @@ async def _send_line_notification(
 
     except Exception as e:
         logger.error(f"Error sending LINE notification: {str(e)}")
-        return False
+        raise e

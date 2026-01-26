@@ -59,12 +59,7 @@ async def _async_daily_requirement_schedule_notifier(request_id: str):
             )
 
             if not eligible_schedules:
-                return {
-                    "success": True,
-                    "processed_count": 0,
-                    "notifications_sent": 0,
-                    "request_id": request_id,
-                }
+                return {"status": "success"}
 
             processed_count = 0
             notifications_sent = 0
@@ -139,12 +134,7 @@ async def _async_daily_requirement_schedule_notifier(request_id: str):
                 notifications_sent=notifications_sent,
             )
 
-            return {
-                "success": True,
-                "processed_count": processed_count,
-                "notifications_sent": notifications_sent,
-                "request_id": request_id,
-            }
+            return {"status": "success"}
 
         except Exception as e:
             logger.error(
@@ -154,7 +144,7 @@ async def _async_daily_requirement_schedule_notifier(request_id: str):
                 exc_info=True,
             )
 
-            return {"success": False, "error": str(e), "request_id": request_id}
+            return {"status": "error", "message": str(e)}
 
 
 async def _get_eligible_requirement_schedules(

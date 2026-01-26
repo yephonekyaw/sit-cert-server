@@ -15,7 +15,6 @@ from app.schemas.staff.program_schemas import (
 )
 from app.utils.responses import ResponseBuilder
 from app.utils.errors import BusinessLogicError
-from app.utils.error_handlers import handle_service_error
 
 programs_router = APIRouter(dependencies=[Depends(require_staff)])
 
@@ -46,11 +45,10 @@ async def get_all_programs(
         )
 
     except (ValueError, RuntimeError) as e:
-        return handle_service_error(request, e)
+        raise e
     except Exception:
         raise BusinessLogicError(
             message="Failed to retrieve programs",
-            error_code="PROGRAMS_RETRIEVAL_FAILED",
         )
 
 
@@ -78,10 +76,10 @@ async def create_program(
         )
 
     except (ValueError, RuntimeError) as e:
-        return handle_service_error(request, e)
+        raise e
     except Exception:
         raise BusinessLogicError(
-            message="Failed to create program", error_code="PROGRAM_CREATION_FAILED"
+            message="Failed to create program",
         )
 
 
@@ -112,10 +110,10 @@ async def update_program(
         )
 
     except (ValueError, RuntimeError) as e:
-        return handle_service_error(request, e)
+        raise e
     except Exception:
         raise BusinessLogicError(
-            message="Failed to update program", error_code="PROGRAM_UPDATE_FAILED"
+            message="Failed to update program",
         )
 
 
@@ -147,8 +145,8 @@ async def archive_program(
         )
 
     except (ValueError, RuntimeError) as e:
-        return handle_service_error(request, e)
+        raise e
     except Exception:
         raise BusinessLogicError(
-            message="Failed to archive program", error_code="PROGRAM_ARCHIVE_FAILED"
+            message="Failed to archive program",
         )

@@ -60,10 +60,7 @@ async def _async_annual_requirement_archiver(request_id: str):
             if not expired_requirements:
                 logger.info("No expired requirements found to archive")
                 return {
-                    "success": True,
-                    "archived_count": 0,
-                    "current_academic_year": current_academic_year,
-                    "request_id": request_id,
+                    "status": "success",
                 }
 
             # Archive expired requirements by setting is_active = False
@@ -78,12 +75,7 @@ async def _async_annual_requirement_archiver(request_id: str):
                 current_academic_year=current_academic_year,
             )
 
-            return {
-                "success": True,
-                "archived_count": archived_count,
-                "current_academic_year": current_academic_year,
-                "request_id": request_id,
-            }
+            return {"status": "success", "message": f"Archived count: {archived_count}"}
         except Exception as e:
             logger.error(
                 "Annual requirement archiver task exception",
@@ -91,7 +83,7 @@ async def _async_annual_requirement_archiver(request_id: str):
                 error=str(e),
                 exc_info=True,
             )
-            return {"success": False, "error": str(e), "request_id": request_id}
+            return {"status": "success", "message": str(e)}
 
 
 def _calculate_current_academic_year(current_datetime: datetime) -> int:

@@ -61,14 +61,7 @@ async def _async_monthly_schedule_creator(request_id: str):
 
             if not program_requirements:
                 logger.info("No active program requirements found")
-                return {
-                    "success": True,
-                    "processed_count": 0,
-                    "created_count": 0,
-                    "skipped_count": 0,
-                    "current_academic_year": current_academic_year,
-                    "request_id": request_id,
-                }
+                return {"status": "success"}
 
             # Get existing academic years for efficient lookups
             academic_years_map = await _get_academic_years_map(db_session)
@@ -232,18 +225,11 @@ async def _async_monthly_schedule_creator(request_id: str):
                 f"Monthly schedule creation task completed: processed {processed_count}, created {created_count}, skipped {skipped_count}"
             )
 
-            return {
-                "success": True,
-                "processed_count": processed_count,
-                "created_count": created_count,
-                "skipped_count": skipped_count,
-                "current_academic_year": current_academic_year,
-                "request_id": request_id,
-            }
+            return {"status": "success"}
 
         except Exception as e:
             logger.error(f"Monthly schedule creator task exception: {str(e)}")
-            return {"success": False, "error": str(e), "request_id": request_id}
+            return {"status": "error", "message": str(e)}
 
 
 def _calculate_current_academic_year(current_datetime: datetime) -> int:

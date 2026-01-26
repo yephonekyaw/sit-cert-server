@@ -123,21 +123,12 @@ async def _async_create_notification(
                         notification_id=str(notification_id),
                     )
 
-                return {
-                    "success": True,
-                    "notification_id": str(notification_id),
-                    "recipient_count": len(recipient_ids),
-                    "request_id": request_id,
-                }
+                return {"status": "success"}
             else:
                 logger.error(
                     f"Failed to create notification {notification_code} for entity {entity_id}"
                 )
-                return {
-                    "success": False,
-                    "error": "Failed to create notification",
-                    "request_id": request_id,
-                }
+                return {"status": "error", "message": "Failed to create notification"}
 
         except Exception as e:
             logger.error(
@@ -145,9 +136,6 @@ async def _async_create_notification(
             )
 
             return {
-                "success": False,
-                "error": str(e),
-                "notification_code": notification_code,
-                "entity_id": entity_id,
-                "request_id": request_id,
+                "status": "error",
+                "message": str(e),
             }

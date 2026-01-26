@@ -56,5 +56,4 @@ async def get_academic_years(
     except Exception as e:
         raise BusinessLogicError(
             message="Failed to retrieve academic years",
-            error_code="ACADEMIC_YEARS_RETRIEVAL_FAILED",
         )

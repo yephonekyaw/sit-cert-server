@@ -19,7 +19,6 @@ from app.schemas.staff.submission_schemas import (
 )
 from app.utils.responses import ResponseBuilder
 from app.utils.errors import BusinessLogicError
-from app.utils.error_handlers import handle_service_error
 from app.middlewares.auth_middleware import AuthState, require_staff
 from app.services.notifications.utils import (
     create_notification_sync,
@@ -72,11 +71,10 @@ async def get_submissions_by_schedule_id(
         )
 
     except (ValueError, RuntimeError) as e:
-        return handle_service_error(request, e)
+        raise e
     except Exception as e:
         raise BusinessLogicError(
             message="Failed to retrieve submissions",
-            error_code="SUBMISSIONS_RETRIEVAL_FAILED",
         )
 
 
@@ -116,11 +114,10 @@ async def get_verification_history_by_submission_id(
         )
 
     except (ValueError, RuntimeError) as e:
-        return handle_service_error(request, e)
+        raise e
     except Exception as e:
         raise BusinessLogicError(
             message="Failed to retrieve verification history",
-            error_code="VERIFICATION_HISTORY_RETRIEVAL_FAILED",
         )
 
 
@@ -214,9 +211,8 @@ async def verify_submission(
         )
 
     except (ValueError, RuntimeError) as e:
-        return handle_service_error(request, e)
+        raise e
     except Exception as e:
         raise BusinessLogicError(
             message="Failed to verify submission",
-            error_code="SUBMISSION_VERIFICATION_FAILED",
         )

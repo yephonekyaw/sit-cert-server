@@ -76,10 +76,10 @@ class ProgramRequirementScheduleService:
         )
 
         if not program_requirement:
-            raise ValueError("PROGRAM_REQUIREMENT_NOT_FOUND")
+            raise ValueError("Requirement not found")
 
         if not program_requirement.is_active:
-            raise ValueError("PROGRAM_REQUIREMENT_NOT_ACTIVE")
+            raise ValueError("Requirement not active")
 
         return program_requirement
 
@@ -90,7 +90,7 @@ class ProgramRequirementScheduleService:
         academic_year = await self.get_academic_year_by_id(academic_year_id)
 
         if not academic_year:
-            raise ValueError("ACADEMIC_YEAR_NOT_FOUND")
+            raise ValueError("Academic year not found")
 
         return academic_year
 
@@ -107,7 +107,7 @@ class ProgramRequirementScheduleService:
         )
 
         if not program_requirement:
-            raise ValueError("PROGRAM_REQUIREMENT_NOT_FOUND")
+            raise ValueError("Requirement not found")
 
         # Get program to access duration_years
         program_query = select(Program).where(
@@ -117,7 +117,7 @@ class ProgramRequirementScheduleService:
         program = program_result.scalar_one_or_none()
 
         if not program:
-            raise ValueError("PROGRAM_NOT_FOUND")
+            raise ValueError("Program not found")
 
         # Calculate the extended end date based on program duration
         extended_end_date = academic_year.start_date + timedelta(
@@ -125,7 +125,7 @@ class ProgramRequirementScheduleService:
         )
 
         if not (academic_year.start_date <= submission_deadline <= extended_end_date):
-            raise ValueError("DEADLINE_OUTSIDE_ACADEMIC_YEAR")
+            raise ValueError("Invalid deadline")
 
     async def check_schedule_exists(
         self, program_requirement_id: str, academic_year_id: str
@@ -184,7 +184,7 @@ class ProgramRequirementScheduleService:
                 schedule_data.program_requirement_id,
                 schedule_data.academic_year_id,
             ):
-                raise ValueError("SCHEDULE_ALREADY_EXISTS")
+                raise ValueError("Schedule already exists")
 
             # Use grace_period_days from request or default from program requirement
             grace_period_days = (
@@ -231,7 +231,7 @@ class ProgramRequirementScheduleService:
 
         except IntegrityError as e:
             logger.warning(f"Integrity error creating schedule: {str(e)}")
-            raise ValueError("DATABASE_CONSTRAINT_VIOLATION")
+            raise ValueError("Database integrity error")
         except Exception as e:
             raise e
 
@@ -249,14 +249,14 @@ class ProgramRequirementScheduleService:
             # Get existing schedule
             existing_schedule = await self.get_schedule_by_id(schedule_id)
             if not existing_schedule:
-                raise ValueError("SCHEDULE_NOT_FOUND")
+                raise ValueError("Schedule not found")
 
             # Validate that program_requirement_id matches (cannot be modified)
             if (
                 existing_schedule.program_requirement_id
                 != schedule_data.program_requirement_id
             ):
-                raise ValueError("INVALID_PROGRAM_REQUIREMENT_MODIFICATION")
+                raise ValueError("Invalid program requirement ID")
 
             # Validate program requirement is still active
             program_requirement = await self.validate_program_requirement_active(
@@ -277,7 +277,7 @@ class ProgramRequirementScheduleService:
                     schedule_data.academic_year_id,
                     schedule_id,
                 ):
-                    raise ValueError("SCHEDULE_ALREADY_EXISTS")
+                    raise ValueError("Schedule already exists")
 
             # Use grace_period_days from request or default from program requirement
             grace_period_days = (
@@ -315,7 +315,7 @@ class ProgramRequirementScheduleService:
 
         except IntegrityError as e:
             logger.warning(f"Integrity error updating schedule: {str(e)}")
-            raise ValueError("DATABASE_CONSTRAINT_VIOLATION")
+            raise ValueError("Database integrity error")
         except Exception as e:
             raise e
 

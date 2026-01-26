@@ -113,11 +113,7 @@ async def _async_annual_batch_processor(request_id: str, **kwargs):
                         url=e.request.url,
                         error=str(e),
                     )
-                    return {
-                        "success": False,
-                        "error": f"API request failed: {e}",
-                        "request_id": request_id,
-                    }
+                    return {"status": "error", "message": str(e)}
 
             # Filter out existing students and process new ones
             new_student_data = [
@@ -179,9 +175,8 @@ async def _async_annual_batch_processor(request_id: str, **kwargs):
             )
 
             return {
-                "success": True,
-                "new_students_added": new_student_count,
-                "request_id": request_id,
+                "status": "success",
+                "message": f"Students {new_student_count} added",
             }
 
         except Exception as e:
@@ -191,7 +186,7 @@ async def _async_annual_batch_processor(request_id: str, **kwargs):
                 error=str(e),
                 exc_info=True,
             )
-            return {"success": False, "error": str(e), "request_id": request_id}
+            return {"status": "error", "message": str(e)}
 
 
 def _convert_to_thai_academic_year(gregorian_year: int) -> int:

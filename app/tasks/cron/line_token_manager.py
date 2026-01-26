@@ -83,8 +83,8 @@ async def _async_line_token_manager(request_id: str):
             )
 
             logger.info("LINE token management completed", **stats)
-            return {"success": True, "request_id": request_id, "statistics": stats}
+            return {"status": "success"}
 
         except Exception as e:
             logger.error(f"LINE token management failed: {str(e)}", exc_info=True)
-            return {"success": False, "error": str(e), "request_id": request_id}
+            return {"status": "error", "message": str(e)}

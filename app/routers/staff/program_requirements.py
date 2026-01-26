@@ -14,7 +14,6 @@ from app.schemas.staff.program_requirement_schemas import (
 )
 from app.utils.responses import ResponseBuilder
 from app.utils.errors import BusinessLogicError
-from app.utils.error_handlers import handle_service_error
 from app.middlewares.auth_middleware import require_staff
 
 program_requirements_router = APIRouter(dependencies=[Depends(require_staff)])
@@ -46,11 +45,10 @@ async def get_all_program_requirements(
         )
 
     except (ValueError, RuntimeError) as e:
-        return handle_service_error(request, e)
+        raise e
     except Exception as e:
         raise BusinessLogicError(
             message="Failed to retrieve program requirements",
-            error_code="PROGRAM_REQUIREMENT_RETRIEVAL_FAILED",
         )
 
 
@@ -80,11 +78,10 @@ async def create_program_requirement(
         )
 
     except (ValueError, RuntimeError) as e:
-        return handle_service_error(request, e)
+        raise e
     except Exception:
         raise BusinessLogicError(
             message="Failed to create program requirement",
-            error_code="PROGRAM_REQUIREMENT_CREATION_FAILED",
         )
 
 
@@ -115,11 +112,10 @@ async def archive_program_requirement(
         )
 
     except (ValueError, RuntimeError) as e:
-        return handle_service_error(request, e)
+        raise e
     except Exception:
         raise BusinessLogicError(
             message="Failed to archive program requirement",
-            error_code="PROGRAM_REQUIREMENT_ARCHIVE_FAILED",
         )
 
 
@@ -153,9 +149,8 @@ async def update_program_requirement(
         )
 
     except (ValueError, RuntimeError) as e:
-        return handle_service_error(request, e)
+        raise e
     except Exception as e:
         raise BusinessLogicError(
             message="Failed to update program requirement",
-            error_code="PROGRAM_REQUIREMENT_UPDATE_FAILED",
         )

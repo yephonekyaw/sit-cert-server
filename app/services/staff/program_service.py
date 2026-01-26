@@ -48,7 +48,7 @@ class ProgramService:
         """Create a new program with validation"""
         # Check if program code already exists
         if await self.check_program_code_exists(program_data.program_code):
-            raise ValueError("PROGRAM_CODE_EXISTS")
+            raise ValueError("Program code already exists")
 
         try:
             # Create new program
@@ -68,7 +68,7 @@ class ProgramService:
             return self._create_program_response(new_program)
 
         except IntegrityError as e:
-            raise ValueError("PROGRAM_CODE_EXISTS")
+            raise ValueError("Program code already exists")
         except Exception as e:
             raise e
 
@@ -79,14 +79,14 @@ class ProgramService:
         # Check if program exists
         program = await self.get_program_by_id(program_id)
         if not program:
-            raise ValueError("PROGRAM_NOT_FOUND")
+            raise ValueError("Program not found")
 
         # Check if another program already has this code (excluding current program)
         if program_data.program_code != program.program_code:
             if await self.check_program_code_exists(
                 program_data.program_code, exclude_id=program_id
             ):
-                raise ValueError("PROGRAM_CODE_EXISTS")
+                raise ValueError("Program code already exists")
 
         # Validate duration_years change against active program requirements
         if program_data.duration_years != program.duration_years:
@@ -99,9 +99,7 @@ class ProgramService:
                     f"'{req.name}' (target year: {req.target_year})"
                     for req in conflicting_requirements
                 ]
-                raise ValueError(
-                    f"DURATION_CONFLICTS_WITH_REQUIREMENTS: {', '.join(requirement_details)}"
-                )
+                raise ValueError(f"{', '.join(requirement_details)}")
 
         try:
             # Update program fields
@@ -117,7 +115,7 @@ class ProgramService:
             return self._create_program_response(program)
 
         except IntegrityError as e:
-            raise ValueError("PROGRAM_CODE_EXISTS")
+            raise ValueError("Program code already exists")
         except Exception as e:
             raise e
 
@@ -126,11 +124,11 @@ class ProgramService:
         # Check if program exists
         program = await self.get_program_by_id(program_id)
         if not program:
-            raise ValueError("PROGRAM_NOT_FOUND")
+            raise ValueError("Program not found")
 
         # Check if program is already archived
         if not program.is_active:
-            raise ValueError("PROGRAM_ALREADY_ARCHIVED")
+            raise ValueError("Program already archived")
 
         try:
             # Check if program has any active requirements
@@ -147,7 +145,7 @@ class ProgramService:
             # Prevent archiving if there are active requirements
             if active_requirements_count is not None and active_requirements_count > 0:
                 raise ValueError(
-                    f"PROGRAM_HAS_ACTIVE_REQUIREMENTS: {active_requirements_count} active requirement{'s' if active_requirements_count != 1 else ''} found"
+                    f"{active_requirements_count} active requirement{'s' if active_requirements_count != 1 else ''} found"
                 )
 
             # Archive the program (no requirements to archive)

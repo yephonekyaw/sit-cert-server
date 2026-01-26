@@ -61,14 +61,12 @@ class AuthMiddleware(BaseHTTPMiddleware):
             username = user_info.get("username")
 
             if not username:
-                raise AuthenticationError(
-                    "Invalid user data from provider", "AUTH_ERROR"
-                )
+                raise AuthenticationError("Invalid user data from provider")
 
             user = await run_in_threadpool(self._get_user_from_db, username)
 
             if not user:
-                raise AuthenticationError("User not found or inactive", "AUTH_ERROR")
+                raise AuthenticationError("User not found or inactive")
 
             request.state.auth = AuthState(
                 user_id=str(user.id),
@@ -86,14 +84,12 @@ class AuthMiddleware(BaseHTTPMiddleware):
             return ResponseBuilder.error(
                 request=request,
                 message=error_message,
-                error_code="AUTH_ERROR",
                 status_code=401,
             )
         except Exception as e:
             return ResponseBuilder.error(
                 request=request,
                 message=str(e),
-                error_code="INTERNAL_SERVER_ERROR",
                 status_code=500,
             )
 
@@ -111,7 +107,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
             request.headers.get("authorization")
         ) or request.cookies.get("jwt_token")
         if not token:
-            raise AuthenticationError("No bearer token found", "AUTH_ERROR")
+            raise AuthenticationError("No bearer token found")
         return token
 
     async def _fetch_user_info(self, token: str) -> dict:
@@ -139,7 +135,7 @@ def get_current_user(request: Request) -> AuthState:
     auth_state = getattr(request.state, "auth", None)
 
     if not auth_state or not auth_state.is_authenticated:
-        raise AuthenticationError("Not authenticated", "NOT_AUTHENTICATED")
+        raise AuthenticationError("Not authenticated")
 
     return auth_state
 
@@ -154,7 +150,7 @@ def require_user_type(*allowed_types: str):
     ) -> AuthState:
         if current_user.user_type not in allowed_types:
             raise AuthorizationError(
-                "Insufficient permissions", "INSUFFICIENT_PERMISSIONS"
+                "Insufficient permissions",
             )
         return current_user
 

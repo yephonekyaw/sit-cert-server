@@ -223,25 +223,10 @@ async def get_student_verification_history_by_submission_id(
             status_code=status.HTTP_200_OK,
         )
 
-    except BusinessLogicError:
+    except (BusinessLogicError, ValueError):
         raise
-    except ValueError as e:
-        # Handle submission not found or ownership validation errors
-        error_message = str(e)
-        if "CERTIFICATE_SUBMISSION_NOT_FOUND" in error_message:
-            raise BusinessLogicError(
-                "Certificate submission not found", "CERTIFICATE_SUBMISSION_NOT_FOUND"
-            )
-        elif "SUBMISSION_NOT_OWNED_BY_STUDENT" in error_message:
-            raise BusinessLogicError(
-                "You don't have permission to view this submission",
-                "SUBMISSION_ACCESS_DENIED",
-            )
-        else:
-            raise BusinessLogicError("Invalid submission", "INVALID_SUBMISSION")
     except Exception as e:
         logger.error(f"Verification history retrieval error: {str(e)}")
         raise BusinessLogicError(
             "Failed to retrieve verification history",
-            "VERIFICATION_HISTORY_RETRIEVAL_FAILED",
         )

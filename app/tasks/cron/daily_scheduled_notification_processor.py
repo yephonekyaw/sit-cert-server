@@ -63,12 +63,7 @@ async def _async_daily_scheduled_notifications_processor(request_id: str):
             scheduled_notifications = db_session.scalars(stmt).all()
 
             if not scheduled_notifications:
-                return {
-                    "success": True,
-                    "processed_count": 0,
-                    "current_date": current_date.isoformat(),
-                    "request_id": request_id,
-                }
+                return {"status": "success"}
 
             # Process each scheduled notification
             processed_count = 0
@@ -102,11 +97,7 @@ async def _async_daily_scheduled_notifications_processor(request_id: str):
             )
 
             return {
-                "success": True,
-                "processed_count": processed_count,
-                "total_found": len(scheduled_notifications),
-                "current_date": current_date.isoformat(),
-                "request_id": request_id,
+                "status": "success",
             }
 
         except Exception as e:
@@ -117,8 +108,4 @@ async def _async_daily_scheduled_notifications_processor(request_id: str):
                 exc_info=True,
             )
 
-            return {
-                "success": False,
-                "error": str(e),
-                "request_id": request_id,
-            }
+            return {"status": "error", "message": str(e)}

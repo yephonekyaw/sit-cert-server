@@ -12,7 +12,6 @@ from app.schemas.staff.program_requirement_schedule_schemas import (
 )
 from app.utils.responses import ResponseBuilder
 from app.utils.errors import BusinessLogicError
-from app.utils.error_handlers import handle_service_error
 from app.middlewares.auth_middleware import require_staff
 
 program_requirement_schedules_router = APIRouter(dependencies=[Depends(require_staff)])
@@ -48,11 +47,10 @@ async def get_all_program_requirement_schedules(
         )
 
     except (ValueError, RuntimeError) as e:
-        return handle_service_error(request, e)
+        raise e
     except Exception:
         raise BusinessLogicError(
             message="Failed to retrieve program requirement schedules",
-            error_code="SCHEDULES_RETRIEVAL_FAILED",
         )
 
 
@@ -82,11 +80,10 @@ async def create_program_requirement_schedule(
         )
 
     except (ValueError, RuntimeError) as e:
-        return handle_service_error(request, e)
+        raise e
     except Exception:
         raise BusinessLogicError(
             message="Failed to create program requirement schedule",
-            error_code="SCHEDULE_CREATION_FAILED",
         )
 
 
@@ -119,9 +116,8 @@ async def update_program_requirement_schedule(
         )
 
     except (ValueError, RuntimeError) as e:
-        return handle_service_error(request, e)
+        raise e
     except Exception:
         raise BusinessLogicError(
             message="Failed to update program requirement schedule",
-            error_code="SCHEDULE_UPDATE_FAILED",
         )

@@ -48,13 +48,7 @@ async def _async_daily_notification_expiration(request_id: str):
             expiring_notifications = notifications_result.scalars().all()
 
             if not expiring_notifications:
-                return {
-                    "success": True,
-                    "expired_notifications": 0,
-                    "expired_recipients": 0,
-                    "current_date": current_date.isoformat(),
-                    "request_id": request_id,
-                }
+                return {"status": "success"}
 
             # Mark pending recipients as expired for each expiring notification
             total_expired_notifications = 0
@@ -86,12 +80,7 @@ async def _async_daily_notification_expiration(request_id: str):
             )
 
             return {
-                "success": True,
-                "expired_notifications": total_expired_notifications,
-                "expired_recipients": total_expired_recipients,
-                "total_checked": len(expiring_notifications),
-                "current_date": current_date.isoformat(),
-                "request_id": request_id,
+                "status": "success",
             }
         except Exception as e:
             logger.error(
@@ -100,8 +89,4 @@ async def _async_daily_notification_expiration(request_id: str):
                 error=str(e),
                 exc_info=True,
             )
-            return {
-                "success": False,
-                "error": str(e),
-                "request_id": request_id,
-            }
+            return {"status": "success", "message": str(e)}

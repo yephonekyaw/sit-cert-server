@@ -37,15 +37,12 @@ class ResponseBuilder:
         request: Request,
         message: str = "An error occurred",
         errors: Optional[List[Dict[str, Any]]] = None,
-        error_code: Optional[str] = None,
         status_code: int = status.HTTP_400_BAD_REQUEST,
         data: Any = None,
         meta: Optional[Dict[str, Any]] = None,
     ) -> JSONResponse:
         """Create an error response"""
         response_meta = meta or {}
-        if error_code:
-            response_meta["error_code"] = error_code
 
         response = ApiResponse(
             success=False,

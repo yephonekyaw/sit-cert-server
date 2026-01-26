@@ -74,14 +74,14 @@ class CertificateService:
         """Update certificate"""
         certificate = await self.get_certificate_by_id(certificate_id)
         if not certificate:
-            raise ValueError("CERTIFICATE_TYPE_NOT_FOUND")
+            raise ValueError("Cert type not found")
 
         # Check for duplicate code
         if certificate_data.cert_code != certificate.cert_code:
             if await self.check_certificate_code_exists(
                 certificate_data.cert_code, exclude_id=certificate_id
             ):
-                raise ValueError("CERTIFICATE_CODE_EXISTS")
+                raise ValueError("Cert code already exists")
 
         try:
             # Update fields
@@ -104,7 +104,7 @@ class CertificateService:
             )
 
         except IntegrityError:
-            raise ValueError("CERTIFICATE_CODE_EXISTS")
+            raise ValueError("Cert code already exists")
         except Exception as e:
             raise e
 
@@ -112,10 +112,10 @@ class CertificateService:
         """Archive certificate if no active requirements"""
         certificate = await self.get_certificate_by_id(certificate_id)
         if not certificate:
-            raise ValueError("CERTIFICATE_TYPE_NOT_FOUND")
+            raise ValueError("Cert type not found")
 
         if not certificate.is_active:
-            raise ValueError("CERTIFICATE_TYPE_ALREADY_ARCHIVED")
+            raise ValueError("Cert type already archived")
 
         try:
             # Check for active requirements
@@ -131,7 +131,7 @@ class CertificateService:
             if active_count and active_count > 0:
                 plural = "s" if active_count != 1 else ""
                 raise ValueError(
-                    f"CERTIFICATE_TYPE_HAS_ACTIVE_REQUIREMENTS: {active_count} active requirement{plural} must be archived first"
+                    f"{active_count} active requirement{plural} must be archived first"
                 )
 
             certificate.is_active = False

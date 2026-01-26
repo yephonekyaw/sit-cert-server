@@ -54,7 +54,7 @@ class ProgramRequirementService:
         # Validate target year against program duration
         if requirement_data.target_year > program.duration_years:
             raise ValueError(
-                f"TARGET_YEAR_EXCEEDS_PROGRAM_DURATION: Target year ({requirement_data.target_year}) cannot exceed program duration ({program.duration_years} years)"
+                f"Target year ({requirement_data.target_year}) cannot exceed program duration ({program.duration_years} years)"
             )
 
         # Validate certificate type exists and is active
@@ -100,9 +100,9 @@ class ProgramRequirementService:
         except IntegrityError as e:
             error_msg = str(e.orig).lower()
             if "unique" in error_msg:
-                raise ValueError("REQUIREMENT_ALREADY_EXISTS")
+                raise ValueError("Requirement already exists")
             else:
-                raise ValueError("DATABASE_CONSTRAINT_VIOLATION")
+                raise ValueError("Unkonw error")
         except Exception as e:
             raise e
 
@@ -113,10 +113,10 @@ class ProgramRequirementService:
         # Get the requirement to archive
         requirement = await self.get_requirement_by_id(requirement_id)
         if not requirement:
-            raise ValueError("PROGRAM_REQUIREMENT_NOT_FOUND")
+            raise ValueError("Requirement not found")
 
         if not requirement.is_active:
-            raise ValueError("PROGRAM_REQUIREMENT_ALREADY_ARCHIVED")
+            raise ValueError("Requirement already archived")
 
         try:
             # Find the latest academic year for which we have created a schedule
@@ -157,7 +157,7 @@ class ProgramRequirementService:
         # Get the existing requirement
         requirement = await self.get_requirement_by_id(requirement_id)
         if not requirement:
-            raise ValueError("PROGRAM_REQUIREMENT_NOT_FOUND")
+            raise ValueError("Requirement not found")
 
         # Validate that the program still exists and is active
         program = await self._validate_program_exists_and_active(requirement.program_id)
@@ -165,7 +165,7 @@ class ProgramRequirementService:
         # Validate target_year against program duration
         if requirement_data.target_year > program.duration_years:
             raise ValueError(
-                f"TARGET_YEAR_EXCEEDS_PROGRAM_DURATION: Target year ({requirement_data.target_year}) cannot exceed program duration ({program.duration_years} years)"
+                f"Target year ({requirement_data.target_year}) cannot exceed program duration ({program.duration_years} years)"
             )
 
         # Get academic year boundaries for validation
@@ -181,7 +181,7 @@ class ProgramRequirementService:
             and requirement_data.effective_from_year < oldest_academic_year
         ):
             raise ValueError(
-                f"EFFECTIVE_FROM_YEAR_TOO_EARLY: effective_from_year ({requirement_data.effective_from_year}) cannot be earlier than the oldest academic year ({oldest_academic_year})"
+                f"effective_from_year ({requirement_data.effective_from_year}) cannot be earlier than the oldest academic year ({oldest_academic_year})"
             )
 
         # Validate effective_until_year
@@ -191,10 +191,13 @@ class ProgramRequirementService:
             and requirement_data.effective_until_year < latest_schedule_academic_year
         ):
             raise ValueError(
-                f"EFFECTIVE_UNTIL_YEAR_TOO_EARLY: effective_until_year ({requirement_data.effective_until_year}) cannot be earlier than the latest academic year with created schedules ({latest_schedule_academic_year})"
+                f"effective_until_year ({requirement_data.effective_until_year}) cannot be earlier than the latest academic year with created schedules ({latest_schedule_academic_year})"
             )
-        
-        if (requirement.recurrence_type == ProgReqRecurrenceType.ANNUAL and requirement_data.recurrence_type == ProgReqRecurrenceType.ONCE):
+
+        if (
+            requirement.recurrence_type == ProgReqRecurrenceType.ANNUAL
+            and requirement_data.recurrence_type == ProgReqRecurrenceType.ONCE
+        ):
             # Ensure that effective_until_year is set to the latest schedule academic year for ONCE type
             if latest_schedule_academic_year:
                 requirement_data.effective_until_year = latest_schedule_academic_year
@@ -344,10 +347,10 @@ class ProgramRequirementService:
         program = self.db.get_one(Program, program_id)
 
         if not program:
-            raise ValueError("PROGRAM_NOT_FOUND")
+            raise ValueError("Program not found")
 
         if not program.is_active:
-            raise ValueError("PROGRAM_NOT_ACTIVE")
+            raise ValueError("Program not active")
 
         return program
 
@@ -359,10 +362,10 @@ class ProgramRequirementService:
         cert_type = result.scalar_one_or_none()
 
         if not cert_type:
-            raise ValueError("CERTIFICATE_TYPE_NOT_FOUND")
+            raise ValueError("Cert type not found")
 
         if not cert_type.is_active:
-            raise ValueError("CERTIFICATE_TYPE_NOT_ACTIVE")
+            raise ValueError("Cert type not active")
 
     async def _get_oldest_academic_year(self) -> Optional[int]:
         """Get the oldest academic year from the system"""

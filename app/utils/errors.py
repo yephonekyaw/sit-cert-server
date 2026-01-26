@@ -10,62 +10,44 @@ from .responses import ResponseBuilder
 logger = get_logger()
 
 
-class DatabaseError(Exception):
-    """Custom exception for database-related errors."""
-
-    def __init__(self, message: str, error_code: str = "DB_ERROR"):
-        super().__init__(message)
-        self.message = message
-        self.error_code = error_code
-
-
 class BusinessLogicError(Exception):
     """Custom exception for business logic errors."""
 
-    def __init__(self, message: str, error_code: str = "BLOC_ERROR"):
+    def __init__(self, message: str):
         super().__init__(message)
         self.message = message
-        self.error_code = error_code
 
 
 class AuthenticationError(Exception):
     """Custom exception for authentication errors."""
 
-    def __init__(
-        self, message: str = "Authentication failed", error_code: str = "AUTH_ERROR"
-    ):
+    def __init__(self, message: str = "Authentication failed"):
         super().__init__(message)
         self.message = message
-        self.error_code = error_code
 
 
 class AuthorizationError(Exception):
     """Custom exception for authorization errors."""
 
-    def __init__(self, message: str = "Access denied", error_code: str = "AUTHZ_ERROR"):
+    def __init__(self, message: str = "Access denied"):
         super().__init__(message)
         self.message = message
-        self.error_code = error_code
 
 
 class NotFoundError(Exception):
     """Custom exception for resource not found errors."""
 
-    def __init__(
-        self, message: str = "Resource not found", error_code: str = "NOT_FOUND"
-    ):
+    def __init__(self, message: str = "Resource not found"):
         super().__init__(message)
         self.message = message
-        self.error_code = error_code
 
 
 class LineApplicationError(Exception):
     """Custom exception for LINE application errors."""
 
-    def __init__(self, message: str, error_code: str = "LINE_ERROR"):
+    def __init__(self, message: str):
         super().__init__(message)
         self.message = message
-        self.error_code = error_code
 
 
 def setup_error_handlers(app: FastAPI):
@@ -77,9 +59,7 @@ def setup_error_handlers(app: FastAPI):
         return ResponseBuilder.error(
             request=request,
             message=str(exc.detail),
-            error_code="HTTP_ERROR",
             status_code=exc.status_code,
-            meta={"http_status": exc.status_code},
         )
 
     """
@@ -109,7 +89,6 @@ def setup_error_handlers(app: FastAPI):
             request=request,
             message="Request validation failed",
             errors=formatted_errors,
-            error_code="VALIDATION_ERROR",
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         )
 
@@ -139,20 +118,7 @@ def setup_error_handlers(app: FastAPI):
         return ResponseBuilder.error(
             request=request,
             message="Data validation failed",
-            error_code="INTERNAL_VALIDATION_ERROR",
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
-
-    @app.exception_handler(DatabaseError)
-    async def database_exception_handler(request: Request, exc: DatabaseError):
-        logger.error(f"Database Error: {str(exc)}")
-
-        return ResponseBuilder.error(
-            request=request,
-            message=exc.message,
-            error_code=exc.error_code,
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            meta={"error_type": "DATABASE_ERROR"},
         )
 
     @app.exception_handler(SQLAlchemyError)
@@ -163,9 +129,7 @@ def setup_error_handlers(app: FastAPI):
         return ResponseBuilder.error(
             request=request,
             message="A database error occurred",
-            error_code="DATABASE_ERROR",
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            meta={"error_type": "SQLALCHEMY_ERROR"},
         )
 
     @app.exception_handler(BusinessLogicError)
@@ -177,9 +141,7 @@ def setup_error_handlers(app: FastAPI):
         return ResponseBuilder.error(
             request=request,
             message=exc.message,
-            error_code=exc.error_code,
             status_code=status.HTTP_400_BAD_REQUEST,
-            meta={"error_type": "BUSINESS_ERROR"},
         )
 
     @app.exception_handler(AuthenticationError)
@@ -191,9 +153,7 @@ def setup_error_handlers(app: FastAPI):
         return ResponseBuilder.error(
             request=request,
             message=exc.message,
-            error_code="UNAUTHORIZED",
             status_code=status.HTTP_401_UNAUTHORIZED,
-            meta={"error_type": "AUTHENTICATION_ERROR"},
         )
 
     @app.exception_handler(AuthorizationError)
@@ -205,9 +165,7 @@ def setup_error_handlers(app: FastAPI):
         return ResponseBuilder.error(
             request=request,
             message=exc.message,
-            error_code="FORBIDDEN",
             status_code=status.HTTP_403_FORBIDDEN,
-            meta={"error_type": "AUTHORIZATION_ERROR"},
         )
 
     @app.exception_handler(NotFoundError)
@@ -217,9 +175,7 @@ def setup_error_handlers(app: FastAPI):
         return ResponseBuilder.error(
             request=request,
             message=exc.message,
-            error_code=exc.error_code,
             status_code=status.HTTP_404_NOT_FOUND,
-            meta={"error_type": "NOT_FOUND_ERROR"},
         )
 
     @app.exception_handler(LineApplicationError)
@@ -231,9 +187,7 @@ def setup_error_handlers(app: FastAPI):
         return ResponseBuilder.error(
             request=request,
             message=exc.message,
-            error_code=exc.error_code,
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            meta={"error_type": "LINE_APPLICATION_ERROR"},
         )
 
     @app.exception_handler(ValueError)
@@ -243,9 +197,7 @@ def setup_error_handlers(app: FastAPI):
         return ResponseBuilder.error(
             request=request,
             message=str(exc),
-            error_code="VALUE_ERROR",
             status_code=status.HTTP_400_BAD_REQUEST,
-            meta={"error_type": "VALUE_ERROR"},
         )
 
     @app.exception_handler(KeyError)
@@ -255,9 +207,8 @@ def setup_error_handlers(app: FastAPI):
         return ResponseBuilder.error(
             request=request,
             message=f"Required key not found: {str(exc)}",
-            error_code="KEY_ERROR",
             status_code=status.HTTP_400_BAD_REQUEST,
-            meta={"error_type": "KEY_ERROR", "missing_key": str(exc)},
+            meta={"missing_key": str(exc)},
         )
 
     @app.exception_handler(Exception)
@@ -269,7 +220,5 @@ def setup_error_handlers(app: FastAPI):
         return ResponseBuilder.error(
             request=request,
             message="An internal server error occurred",
-            error_code="INTERNAL_ERROR",
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            meta={"error_type": "INTERNAL_ERROR"},
         )

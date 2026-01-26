@@ -348,7 +348,7 @@ class RequirementsService:
         ).scalar_one_or_none()
 
         if not submission:
-            raise ValueError("CERTIFICATE_SUBMISSION_NOT_FOUND")
+            raise ValueError("Submission not found")
 
         if submission.student_id != student_id:
-            raise ValueError("SUBMISSION_NOT_OWNED_BY_STUDENT")
+            raise ValueError("No permission to edit the submission")

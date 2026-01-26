@@ -13,7 +13,6 @@ from app.schemas.staff.certificate_schemas import (
 )
 from app.utils.responses import ResponseBuilder
 from app.utils.errors import BusinessLogicError
-from app.utils.error_handlers import handle_service_error
 from app.middlewares.auth_middleware import require_staff
 
 certificates_router = APIRouter(dependencies=[Depends(require_staff)])
@@ -43,11 +42,10 @@ async def get_all_certificate_types(
         )
 
     except (ValueError, RuntimeError) as e:
-        return handle_service_error(request, e)
+        raise e
     except Exception:
         raise BusinessLogicError(
             message="Failed to retrieve certificate types",
-            error_code="CERTIFICATE_TYPES_RETRIEVAL_FAILED",
         )
 
 
@@ -78,11 +76,10 @@ async def update_certificate_type(
         )
 
     except (ValueError, RuntimeError) as e:
-        return handle_service_error(request, e)
+        raise e
     except Exception:
         raise BusinessLogicError(
             message="Failed to update certificate type",
-            error_code="CERTIFICATE_TYPE_UPDATE_FAILED",
         )
 
 
@@ -114,9 +111,8 @@ async def archive_certificate_type(
         )
 
     except (ValueError, RuntimeError) as e:
-        return handle_service_error(request, e)
+        raise e
     except Exception:
         raise BusinessLogicError(
             message="Failed to archive certificate type",
-            error_code="CERTIFICATE_TYPE_ARCHIVE_FAILED",
         )

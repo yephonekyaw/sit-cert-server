@@ -301,7 +301,7 @@ class SubmissionService:
         ).scalar_one_or_none()
 
         if not schedule:
-            raise ValueError("SCHEDULE_NOT_FOUND")
+            raise ValueError("Schedule not found")
 
         return schedule
 

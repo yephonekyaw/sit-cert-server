@@ -32,17 +32,8 @@ async def _async_verify_certificate(request_id: str, submission_id: str):
             submission_id=submission_id,
         )
         logger.info(f"Certificate verification task completed for {submission_id}")
-        return {
-            "success": True,
-            "submission_id": submission_id,
-            "request_id": request_id,
-        }
     except Exception as e:
         logger.error(
             f"Certificate verification task exception for {submission_id}: {str(e)}"
         )
-        return {
-            "success": False,
-            "submission_id": submission_id,
-            "request_id": request_id,
-        }
+        raise e

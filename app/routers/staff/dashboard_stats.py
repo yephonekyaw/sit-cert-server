@@ -9,7 +9,6 @@ from app.services.staff.dashboard_stats_service import (
 )
 from app.utils.responses import ResponseBuilder
 from app.utils.errors import BusinessLogicError
-from app.utils.error_handlers import handle_service_error
 
 dashboard_stats_router = APIRouter(dependencies=[Depends(require_staff)])
 
@@ -56,9 +55,8 @@ def get_dashboard_stats_by_schedule(
         )
 
     except (ValueError, RuntimeError) as e:
-        return handle_service_error(request, e)
+        raise e
     except Exception:
         raise BusinessLogicError(
             message="Failed to retrieve dashboard statistics",
-            error_code="DASHBOARD_STATS_RETRIEVAL_FAILED",
         )

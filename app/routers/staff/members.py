@@ -43,7 +43,6 @@ async def get_all_members(request: Request, member_service=Depends(get_member_se
     except Exception as e:
         raise BusinessLogicError(
             message=str(e) or "Failed to retrieve staff members",
-            error_code="STAFF_MEMBERS_RETRIEVAL_FAILED",
         )
 
 
@@ -71,7 +70,6 @@ async def create_staff_member(
     except Exception as e:
         raise BusinessLogicError(
             message=str(e) or "Failed to create staff member",
-            error_code="STAFF_MEMBER_CREATION_FAILED",
         )
 
 
@@ -100,5 +98,4 @@ async def update_staff_member(
     except Exception as e:
         raise BusinessLogicError(
             message=str(e) or "Failed to update staff member",
-            error_code="STAFF_MEMBER_UPDATE_FAILED",
         )
