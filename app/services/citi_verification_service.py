@@ -1,9 +1,11 @@
-from datetime import datetime
 import re
-from typing import List, Dict, Any, cast
-from playwright.async_api import async_playwright, Error as PlaywrightError
-from sqlalchemy import select
 import instructor
+from datetime import datetime
+from typing import List, Dict, Any, cast
+from sqlalchemy import select
+from pydantic import ValidationError
+from playwright.async_api import async_playwright, Error as PlaywrightError
+
 
 from app.utils.logging import get_logger
 from app.config.settings import settings
@@ -23,7 +25,10 @@ from app.schemas.citi_cert_schemas import (
     Verdict,
     VerificationDecision,
 )
-from app.services.notifications.utils import create_notification_sync
+from app.services.notifications.utils import (
+    create_notification_sync,
+    get_all_staff_user_ids,
+)
 from app.services.staff.dashboard_stats_service import (
     DashboardStatsService,
     get_dashboard_stats_service,
@@ -123,11 +128,21 @@ class CitiCertVerificationService:
                     ],
                 )
                 logger.info(f"Verification rejected for submission ID {submission_id}")
-        except Exception as e:
+        except ValidationError as ve:
             self.verdict = Verdict(
                 decision=VerificationDecision.REJECT,
                 comments=[
-                    f"Unexpected error occurred during the automated verification process, thus rejected. You can resubmit or contact support."
+                    f"Submitted document does not have enough information needed. Possibly, an incorrect document."
+                ],
+            )
+            logger.info(
+                f"Validation error during verification for submission ID {submission_id}: {str(ve)}"
+            )
+        except Exception as e:
+            self.verdict = Verdict(
+                decision=VerificationDecision.MANUAL_REVIEW,
+                comments=[
+                    f"Unexpected error occurred during the automated verification process. Please wait for staff to review manually."
                 ],
             )
             logger.error(
@@ -302,20 +317,18 @@ class CitiCertVerificationService:
         """Save verification results to the database."""
         try:
             with next(get_sync_session()) as db_session:
-                old_status = submission.submission_status
-                new_status = self.decision_mapping[verdict.decision]
+                status = self.decision_mapping[verdict.decision]
 
                 # Update submission record
                 submission = db_session.get_one(CertificateSubmission, submission.id)
-                submission.submission_status = new_status
+                submission.submission_status = status
 
                 # Create verification history
                 verification_history = VerificationHistory(
                     submission_id=submission.id,
                     verifier_id=None,
                     verification_type=VerificationType.AGENT,
-                    old_status=old_status,
-                    new_status=new_status,
+                    status=status,
                     comments="\n".join(verdict.comments),
                 )
 
@@ -333,27 +346,14 @@ class CitiCertVerificationService:
                 get_dashboard_stats_service(db_session)
             )
 
-            decision_deltas = {
-                VerificationDecision.APPROVE: {
-                    "approved_count_delta": 1,
-                    "pending_count_delta": -1,
-                    "agent_verification_count_delta": 1,
-                },
-                VerificationDecision.REJECT: {
-                    "rejected_count_delta": 1,
-                    "pending_count_delta": -1,
-                },
-                VerificationDecision.MANUAL_REVIEW: {
-                    "manual_review_count_delta": 1,
-                    "pending_count_delta": -1,
-                },
-            }
+            agent_verification_increment = (
+                1 if decision == VerificationDecision.APPROVE else 0
+            )
 
-            deltas = decision_deltas[decision]
-            if deltas:
-                await dashboard_stats_service.update_dashboard_stats_by_schedule(
-                    requirement_schedule_id=schedule_id, **deltas
-                )
+            await dashboard_stats_service.update_dashboard_stats_by_schedule(
+                requirement_schedule_id=schedule_id,
+                agent_verification_increment=agent_verification_increment,
+            )
 
     async def _notify(
         self,
@@ -366,7 +366,7 @@ class CitiCertVerificationService:
         notification_codes = {
             VerificationDecision.APPROVE: "certificate_submission_verify",
             VerificationDecision.REJECT: "certificate_submission_reject",
-            VerificationDecision.MANUAL_REVIEW: "certificate_submission_request",
+            VerificationDecision.MANUAL_REVIEW: "certificate_submission_manual_review",
         }
         create_notification_sync(
             request_id=request_id,
@@ -380,6 +380,21 @@ class CitiCertVerificationService:
             in_app_enabled=True,
             line_app_enabled=True,
         )
+        if decision is VerificationDecision.MANUAL_REVIEW:
+            # Notify staff for manual review
+            staff_user_ids = await get_all_staff_user_ids(next(get_sync_session()))
+            create_notification_sync(
+                request_id=request_id,
+                notification_code="certificate_submission_manual_review_staff",
+                entity_id=submission.id,
+                actor_type="system",
+                recipient_ids=staff_user_ids,
+                actor_id=None,
+                scheduled_for=None,
+                expires_at=None,
+                in_app_enabled=True,
+                line_app_enabled=False,
+            )
 
 
 def get_citi_verification_service() -> CitiCertVerificationService:

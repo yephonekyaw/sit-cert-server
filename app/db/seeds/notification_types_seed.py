@@ -65,7 +65,16 @@ def seed_notification_types(db_session: Session):
         NotificationType(
             id=str(uuid.uuid4()),
             entity_type="CertificateSubmission",
-            code="certificate_submission_request",
+            code="certificate_submission_manual_review",
+            name="Certificate Under Manual Review",
+            description="A certificate submission is under manual review.",
+            default_priority=Priority.MEDIUM,
+            is_active=True,
+        ),
+        NotificationType(
+            id=str(uuid.uuid4()),
+            entity_type="CertificateSubmission",
+            code="certificate_submission_manual_review_request",
             name="Certificate Review Requested",
             description="A certificate submission requires a manual review.",
             default_priority=Priority.HIGH,

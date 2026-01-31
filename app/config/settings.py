@@ -56,11 +56,6 @@ class Settings(BaseSettings):
     LINE_CHANNEL_ID: str = "<your-line-channel-id>"
     LINE_CHANNEL_SECRET: str = "<your-line-channel-secret>"
 
-    # LDAP Config
-    LDAP_SERVER: str = "<your-ldap-server>"
-    LDAP_STAFF_BASE_DN: str = "<your-ldap-staff-base-dn>"
-    LDAP_STUDENT_BASE_DN: str = "<your-ldap-student-base-dn>"
-
     # SIT brain base url
     SITBRAIN_BASE_URL: str = "<your-sitbrain-base-url>"
 

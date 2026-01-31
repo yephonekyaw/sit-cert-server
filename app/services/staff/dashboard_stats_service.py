@@ -10,6 +10,7 @@ from app.db.models import (
     ProgramRequirement,
     Program,
     AcademicYear,
+    CertificateSubmission,
 )
 from app.db.session import get_sync_session
 from app.schemas.staff.dashboard_stats_schemas import DashboardStatsResponse
@@ -27,87 +28,17 @@ class DashboardStatsService:
         self.db = db_session
         self.student_service = get_student_service(db_session)
 
-    async def update_dashboard_stats_counts(
-        self,
-        dashboard_stats_id: str,
-        submitted_count_delta: int = 0,
-        approved_count_delta: int = 0,
-        rejected_count_delta: int = 0,
-        pending_count_delta: int = 0,
-        manual_review_count_delta: int = 0,
-        not_submitted_count_delta: int = 0,
-        on_time_submissions_delta: int = 0,
-        late_submissions_delta: int = 0,
-        overdue_count_delta: int = 0,
-        manual_verification_count_delta: int = 0,
-        agent_verification_count_delta: int = 0,
-    ) -> DashboardStats:
-        """
-        Update dashboard stats counts by incrementing or decrementing specific fields.
-
-        Args:
-            dashboard_stats_id: The ID of the dashboard stats record to update
-            *_delta: The amount to add/subtract from each field (negative values for decrement)
-
-        Returns:
-            The updated DashboardStats instance
-
-        Raises:
-            ValueError: If the dashboard stats record is not found
-        """
-        result = self.db.execute(
-            select(DashboardStats).where(DashboardStats.id == dashboard_stats_id)
-        )
-        dashboard_stats = result.scalar_one_or_none()
-
-        if not dashboard_stats:
-            raise ValueError(f"Dashboard stats with ID {dashboard_stats_id} not found")
-
-        dashboard_stats.submitted_count += submitted_count_delta
-        dashboard_stats.approved_count += approved_count_delta
-        dashboard_stats.rejected_count += rejected_count_delta
-        dashboard_stats.pending_count += pending_count_delta
-        dashboard_stats.manual_review_count += manual_review_count_delta
-        dashboard_stats.not_submitted_count += not_submitted_count_delta
-        dashboard_stats.on_time_submissions += on_time_submissions_delta
-        dashboard_stats.late_submissions += late_submissions_delta
-        dashboard_stats.overdue_count += overdue_count_delta
-        dashboard_stats.manual_verification_count += manual_verification_count_delta
-        dashboard_stats.agent_verification_count += agent_verification_count_delta
-        dashboard_stats.last_calculated_at = naive_utc_now()
-
-        self.db.commit()
-        self.db.refresh(dashboard_stats)
-
-        logger.info(
-            f"Updated dashboard stats {dashboard_stats_id} - submitted: {submitted_count_delta:+d}, "
-            f"approved: {approved_count_delta:+d}, rejected: {rejected_count_delta:+d}, "
-            f"pending: {pending_count_delta:+d}, manual_review: {manual_review_count_delta:+d}"
-        )
-
-        return dashboard_stats
-
     async def update_dashboard_stats_by_schedule(
         self,
         requirement_schedule_id: str,
-        submitted_count_delta: int = 0,
-        approved_count_delta: int = 0,
-        rejected_count_delta: int = 0,
-        pending_count_delta: int = 0,
-        manual_review_count_delta: int = 0,
-        not_submitted_count_delta: int = 0,
-        on_time_submissions_delta: int = 0,
-        late_submissions_delta: int = 0,
-        overdue_count_delta: int = 0,
-        manual_verification_count_delta: int = 0,
-        agent_verification_count_delta: int = 0,
+        agent_verification_increment: int = 0,
+        manual_verification_increment: int = 0,
     ) -> DashboardStats:
         """
         Update dashboard stats counts by requirement schedule ID.
 
         Args:
             requirement_schedule_id: The ID of the requirement schedule
-            *_delta: The amount to add/subtract from each field (negative values for decrement)
 
         Returns:
             The updated DashboardStats instance
@@ -115,32 +46,63 @@ class DashboardStatsService:
         Raises:
             ValueError: If no dashboard stats record is found for the schedule
         """
-        result = self.db.execute(
-            select(DashboardStats).where(
-                DashboardStats.requirement_schedule_id == requirement_schedule_id
+
+        submissions = (
+            self.db.execute(
+                select(
+                    CertificateSubmission.submission_status,
+                    CertificateSubmission.submission_timing,
+                ).where(
+                    CertificateSubmission.requirement_schedule_id
+                    == requirement_schedule_id
+                )
             )
-        )
-        dashboard_stats = result.scalar_one_or_none()
+        ).all()
+
+        dashboard_stats = (
+            self.db.execute(
+                select(DashboardStats).where(
+                    DashboardStats.requirement_schedule_id == requirement_schedule_id
+                )
+            )
+        ).scalar_one_or_none()
 
         if not dashboard_stats:
             raise ValueError(
                 f"Dashboard stats for schedule {requirement_schedule_id} not found"
             )
 
-        return await self.update_dashboard_stats_counts(
-            dashboard_stats_id=dashboard_stats.id,
-            submitted_count_delta=submitted_count_delta,
-            approved_count_delta=approved_count_delta,
-            rejected_count_delta=rejected_count_delta,
-            pending_count_delta=pending_count_delta,
-            manual_review_count_delta=manual_review_count_delta,
-            not_submitted_count_delta=not_submitted_count_delta,
-            on_time_submissions_delta=on_time_submissions_delta,
-            late_submissions_delta=late_submissions_delta,
-            overdue_count_delta=overdue_count_delta,
-            manual_verification_count_delta=manual_verification_count_delta,
-            agent_verification_count_delta=agent_verification_count_delta,
+        stats: dict[str, int] = {}
+        for submission in submissions:
+            status, timing = submission
+            status_key = f"{status.value.lower()}_count"
+            timing_key = f"{timing.value.lower()}_submissions"
+            stats[status_key] = stats.get(status_key, 0) + 1
+            stats[timing_key] = stats.get(timing_key, 0) + 1
+
+        dashboard_stats.submitted_count = len(submissions)
+        dashboard_stats.approved_count = stats.get("approved_count", 0)
+        dashboard_stats.rejected_count = stats.get("rejected_count", 0)
+        dashboard_stats.pending_count = stats.get("pending_count", 0)
+        dashboard_stats.manual_review_count = stats.get("manual_review_count", 0)
+        dashboard_stats.on_time_submissions = stats.get("on_time_submissions", 0)
+        dashboard_stats.late_submissions = stats.get("late_submissions", 0)
+        dashboard_stats.overdue_submissions = stats.get("overdue_submissions", 0)
+        dashboard_stats.not_submitted_count = (
+            dashboard_stats.total_submissions_required - len(submissions)
         )
+        dashboard_stats.agent_verification_count += agent_verification_increment
+        dashboard_stats.manual_verification_count += manual_verification_increment
+        dashboard_stats.last_calculated_at = naive_utc_now()
+
+        self.db.commit()
+        self.db.refresh(dashboard_stats)
+
+        logger.info(
+            f"Recalculated dashboard stats for schedule {requirement_schedule_id}"
+        )
+
+        return dashboard_stats
 
     def get_dashboard_stats_by_schedule(
         self, requirement_schedule_id: str
@@ -184,7 +146,7 @@ class DashboardStatsService:
             not_submitted_count=dashboard_stats.not_submitted_count,
             on_time_submissions=dashboard_stats.on_time_submissions,
             late_submissions=dashboard_stats.late_submissions,
-            overdue_count=dashboard_stats.overdue_count,
+            overdue_submissions=dashboard_stats.overdue_submissions,
             manual_verification_count=dashboard_stats.manual_verification_count,
             agent_verification_count=dashboard_stats.agent_verification_count,
             last_calculated_at=dashboard_stats.last_calculated_at,
@@ -267,7 +229,7 @@ class DashboardStatsService:
             not_submitted_count=total_submissions_required,
             on_time_submissions=0,
             late_submissions=0,
-            overdue_count=0,
+            overdue_submissions=0,
             manual_verification_count=0,
             agent_verification_count=0,
             last_calculated_at=naive_utc_now(),

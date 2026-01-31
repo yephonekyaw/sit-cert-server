@@ -20,7 +20,8 @@ class NotificationServiceRegistry:
         "certificate_submission_delete": create_certificate_service,
         "certificate_submission_verify": create_certificate_service,
         "certificate_submission_reject": create_certificate_service,
-        "certificate_submission_request": create_certificate_service,
+        "certificate_submission_manual_review": create_certificate_service,
+        "certificate_submission_manual_review_request": create_certificate_service,
         # Program requirement schedule notifications
         "program_requirement_schedule_remind": create_schedule_service,
         "program_requirement_schedule_warn": create_schedule_service,

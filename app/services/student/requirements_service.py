@@ -11,6 +11,7 @@ from app.db.models import (
     ProgramRequirement,
     Program,
     Student,
+    User,
     SubmissionStatus,
     SubmissionTiming,
 )
@@ -229,10 +230,12 @@ class RequirementsService:
         if submission_data.file.content_type not in SUPPORTED_MIME_TYPES:
             raise BusinessLogicError("File type not supported")
 
+        user = self.db.get_one(User, student.user_id)
+
         # Upload file
         upload_result = await self.minio.upload_file(
             file=submission_data.file,
-            prefix=cert_type.cert_code,
+            prefix=f"{cert_type.cert_code}/{user.username}/{user.first_name.lower()}_{user.last_name.lower()}",
             filename=submission_data.file.filename,
         )
 
@@ -263,7 +266,7 @@ class RequirementsService:
 
             try:
                 await self.minio.delete_file(old_file_object_name)
-            except Exception as e:
+            except Exception:
                 logger.info(f"Old file cleanup failed: {old_file_object_name}")
 
             # Build and return complete response

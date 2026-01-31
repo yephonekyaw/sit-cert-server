@@ -38,16 +38,22 @@ class DocExtractionResult(CamelCaseBaseModel):
 
 
 class CitiCertificateStructuredOutput(CamelCaseBaseModel):
-    student_name: str = Field(description="Full name of the person certified")
-    record_id: str = Field(description="The unique Record ID number")
-    verification_url: str = Field(
-        description="The full URL starting with www.citiprogram.org/verify/"
+    student_name: str = Field(
+        default="", description="Full name of the person certified"
     )
-    expiration_date: str = Field(description="The expiration date, or N/A")
-    curriculum_group: str = Field(description="The curriculum group name")
-    course_learner_group: str = Field(description="The course learner group name")
-    university_name: str = Field(description="The university name")
-    generated_on: str = Field(description="The date the certificate was generated")
+    record_id: str = Field(default="", description="The unique Record ID number")
+    verification_url: str = Field(
+        default="", description="The full URL starting with www.citiprogram.org/verify/"
+    )
+    expiration_date: str = Field(default="", description="The expiration date, or N/A")
+    curriculum_group: str = Field(default="", description="The curriculum group name")
+    course_learner_group: str = Field(
+        default="", description="The course learner group name"
+    )
+    university_name: str = Field(default="", description="The university name")
+    generated_on: str = Field(
+        default="", description="The date the certificate was generated"
+    )
 
 
 class Verdict(CamelCaseBaseModel):

@@ -124,28 +124,22 @@ class SubmissionService:
             }
 
             if verification_data.status not in status_mapping:
-                raise ValueError("INVALID_VERIFICATION_STATUS")
+                raise ValueError("Invalid verification status")
 
-            new_status = status_mapping[verification_data.status]
-            old_status = current_submission.submission_status
-
-            # Validate status change
-            if old_status == new_status:
-                raise ValueError("OLD_STATUS_SAME_AS_NEW_STATUS")
+            status = status_mapping[verification_data.status]
 
             # Create verification history record
             new_verification = VerificationHistory(
                 submission_id=verification_data.submission_id,
                 verifier_id=verifier_id,
                 verification_type=VerificationType.MANUAL,
-                old_status=old_status,
-                new_status=new_status,
+                status=status,
                 comments=verification_data.comments,
             )
 
             # Save verification history and update submission status in a single transaction
             self.db.add(new_verification)
-            current_submission.submission_status = new_status
+            current_submission.submission_status = status
             self.db.commit()
             self.db.refresh(new_verification)
 
@@ -164,7 +158,7 @@ class SubmissionService:
         ).scalar_one_or_none()
 
         if not submission:
-            raise ValueError("CERTIFICATE_SUBMISSION_NOT_FOUND")
+            raise ValueError("Certificate submission not found")
 
         return submission
 
@@ -325,8 +319,7 @@ class SubmissionService:
         return VerificationHistoryResponse(
             id=str(record.id),
             verification_type=record.verification_type,
-            old_status=record.old_status,
-            new_status=record.new_status,
+            status=record.status,
             comments=record.comments,
             created_at=record.created_at,
             updated_at=record.updated_at,

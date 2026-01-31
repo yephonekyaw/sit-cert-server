@@ -346,7 +346,7 @@ class ProgramRequirementScheduleService:
                     DashboardStats.not_submitted_count,
                     DashboardStats.on_time_submissions,
                     DashboardStats.late_submissions,
-                    DashboardStats.overdue_count,
+                    DashboardStats.overdue_submissions,
                 )
                 .select_from(ProgramRequirementSchedule)
                 .join(
@@ -419,7 +419,7 @@ class ProgramRequirementScheduleService:
                     not_submitted_count=row.not_submitted_count,
                     on_time_submissions=row.on_time_submissions,
                     late_submissions=row.late_submissions,
-                    overdue_count=row.overdue_count,
+                    overdue_submissions=row.overdue_submissions,
                 )
                 schedule_items.append(schedule_item.model_dump(by_alias=True))
 

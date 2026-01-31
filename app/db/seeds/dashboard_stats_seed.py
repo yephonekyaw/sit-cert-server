@@ -45,7 +45,7 @@ def seed_dashboard_stats(db_session: Session):
     not_submitted_count = total_students - submitted_count
     on_time_submissions = 0
     late_submissions = 0
-    overdue_count = 0
+    overdue_submissions = 0
     manual_verification_count = 0
     agent_verification_count = 0
 
@@ -64,7 +64,7 @@ def seed_dashboard_stats(db_session: Session):
         not_submitted_count=not_submitted_count,
         on_time_submissions=on_time_submissions,
         late_submissions=late_submissions,
-        overdue_count=overdue_count,
+        overdue_submissions=overdue_submissions,
         manual_verification_count=manual_verification_count,
         agent_verification_count=agent_verification_count,
         last_calculated_at=naive_utc_now(),

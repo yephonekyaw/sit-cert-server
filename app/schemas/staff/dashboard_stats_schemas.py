@@ -28,7 +28,7 @@ class DashboardStatsResponse(BaseModel):
     not_submitted_count: int = Field(..., description="Count of not submitted items")
     on_time_submissions: int = Field(..., description="Count of on-time submissions")
     late_submissions: int = Field(..., description="Count of late submissions")
-    overdue_count: int = Field(..., description="Count of overdue items")
+    overdue_submissions: int = Field(..., description="Count of overdue items")
     manual_verification_count: int = Field(
         ..., description="Count of items requiring manual verification"
     )

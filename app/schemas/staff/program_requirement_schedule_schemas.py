@@ -125,4 +125,4 @@ class GetProgramRequirementSchedulesItem(BaseModel):
     not_submitted_count: Optional[int] = Field(None, description="Not submitted count")
     on_time_submissions: Optional[int] = Field(None, description="On time submissions")
     late_submissions: Optional[int] = Field(None, description="Late submissions")
-    overdue_count: Optional[int] = Field(None, description="Overdue count")
+    overdue_submissions: Optional[int] = Field(None, description="Overdue submissions")

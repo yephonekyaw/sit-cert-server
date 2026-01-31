@@ -64,31 +64,8 @@ async def submit_student_certificate(
         )
 
         # Update dashboard stats
-        timing_deltas = {
-            "on_time": {
-                "submitted_count_delta": 1,
-                "not_submitted_count_delta": -1,
-                "on_time_submissions_delta": 1,
-                "pending_count_delta": 1,
-            },
-            "late": {
-                "submitted_count_delta": 1,
-                "not_submitted_count_delta": -1,
-                "late_submissions_delta": 1,
-                "pending_count_delta": 1,
-            },
-            "overdue": {
-                "submitted_count_delta": 1,
-                "not_submitted_count_delta": -1,
-                "overdue_count_delta": 1,
-                "pending_count_delta": 1,
-            },
-        }
-
-        deltas = timing_deltas.get(cast(str, submission_response.submission_timing), {})
-
         await dashboard_stats_service.update_dashboard_stats_by_schedule(
-            requirement_schedule_id=to_str(submission_response.schedule_id), **deltas
+            requirement_schedule_id=to_str(submission_response.schedule_id)
         )
 
         # Create notifications for staff

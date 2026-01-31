@@ -142,7 +142,7 @@ async def verify_submission(
     try:
         # Validate that submission_id in path matches the one in body
         if submission_id != verification_data.submission_id:
-            raise ValueError("SUBMISSION_ID_MISMATCH")
+            raise ValueError("Submission ID mismatch")
 
         # Get verifier ID from auth context
         verifier_id = current_user.user_id
@@ -154,22 +154,13 @@ async def verify_submission(
         )
 
         # Update dashboard stats based on verification result
-        status_deltas = {
-            "approved": {
-                "approved_count_delta": 1,
-                "manual_review_count_delta": -1,
-                "manual_verification_count_delta": 1,
-            },
-            "rejected": {
-                "rejected_count_delta": 1,
-                "manual_review_count_delta": -1,
-            },
-        }
-
-        deltas = status_deltas.get(verification_data.status, {})
+        manual_verification_increment = (
+            1 if verification_data.status == "approved" else 0
+        )
 
         await dashboard_stats_service.update_dashboard_stats_by_schedule(
-            requirement_schedule_id=str(verification_data.schedule_id), **deltas
+            requirement_schedule_id=str(verification_data.schedule_id),
+            manual_verification_increment=manual_verification_increment,
         )
 
         # Create notification for student about verification result
@@ -183,7 +174,7 @@ async def verify_submission(
             )
 
             if not student_user_id:
-                raise ValueError("STUDENT_USER_NOT_FOUND")
+                raise ValueError("Student user not found for notification")
 
             create_notification_sync(
                 request_id=str(request.state.request_id),

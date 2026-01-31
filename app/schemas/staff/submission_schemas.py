@@ -88,8 +88,7 @@ class VerificationHistoryResponse(BaseModel):
     verification_type: VerificationType = Field(
         ..., description="Type of verification (manual/agent)"
     )
-    old_status: SubmissionStatus = Field(..., description="Previous submission status")
-    new_status: SubmissionStatus = Field(..., description="New submission status")
+    status: SubmissionStatus = Field(..., description="Verification status")
     comments: Optional[str] = Field(None, description="Verification comments")
     created_at: datetime = Field(..., description="Creation timestamp")
     updated_at: Optional[datetime] = Field(None, description="Last update timestamp")

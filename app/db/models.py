@@ -592,10 +592,7 @@ class VerificationHistory(Base, AuditMixin):
     verification_type: Mapped[VerificationType] = mapped_column(
         Enum(VerificationType), nullable=False
     )
-    old_status: Mapped[SubmissionStatus] = mapped_column(
-        Enum(SubmissionStatus), nullable=False
-    )
-    new_status: Mapped[SubmissionStatus] = mapped_column(
+    status: Mapped[SubmissionStatus] = mapped_column(
         Enum(SubmissionStatus), nullable=False
     )
     comments: Mapped[Optional[str]] = mapped_column(Text)
@@ -607,7 +604,6 @@ class VerificationHistory(Base, AuditMixin):
 
     # Constraints
     __table_args__ = (
-        CheckConstraint("old_status != new_status", name="ck_verif_hist_status_change"),
         Index("idx_verif_hist_submission_id", "submission_id"),
         Index("idx_verif_hist_verifier_id", "verifier_id"),
         Index("idx_verif_hist_verification_type", "verification_type"),
@@ -797,7 +793,7 @@ class DashboardStats(Base, AuditMixin):
     not_submitted_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     on_time_submissions: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     late_submissions: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    overdue_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    overdue_submissions: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     manual_verification_count: Mapped[int] = mapped_column(
         Integer, default=0, nullable=False
     )
@@ -855,7 +851,7 @@ class DashboardStats(Base, AuditMixin):
             "academic_year_id",
             "cert_type_id",
         ),
-        Index("idx_dashboard_stats_overdue_count", "overdue_count"),
+        Index("idx_dashboard_stats_overdue_submissions", "overdue_submissions"),
         Index("idx_dashboard_stats_pending_count", "pending_count"),
         Index("idx_dashboard_stats_manual_review_count", "manual_review_count"),
         # Covering index for common dashboard queries
